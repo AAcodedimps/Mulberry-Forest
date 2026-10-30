@@ -14,6 +14,12 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/screen_flash.tscn" id="12_flash"]
 [ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="13_pause"]
 [ext_resource type="PackedScene" path="res://scenes/ui/controls_hint.tscn" id="14_hint"]
+[ext_resource type="Script" path="res://scenes/ghosts/path_recorder.gd" id="15_recorder"]
+[ext_resource type="Script" path="res://scenes/ghosts/ghost_manager.gd" id="16_manager"]
+[ext_resource type="PackedScene" path="res://scenes/ghosts/killer_ghost.tscn" id="17_ghost"]
+[ext_resource type="PackedScene" path="res://scenes/ui/ghost_hud.tscn" id="18_hud"]
+[ext_resource type="PackedScene" path="res://scenes/ui/game_over.tscn" id="19_over"]
+[ext_resource type="PackedScene" path="res://scenes/ghosts/mischief_ghost.tscn" id="20_mischief"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wall"]
 size = Vector2(40, 2000)
@@ -121,6 +127,19 @@ shape = SubResource("RectangleShape2D_wall")
 [node name="Player" parent="." instance=ExtResource("11_player")]
 position = Vector2(120, 600)
 
+[node name="PathRecorder" type="Node" parent="."]
+script = ExtResource("15_recorder")
+player_path = NodePath("../Player")
+
+[node name="Ghosts" type="Node2D" parent="."]
+script = ExtResource("16_manager")
+ghost_scene = ExtResource("17_ghost")
+mischief_scene = ExtResource("20_mischief")
+player_path = NodePath("../Player")
+recorder_path = NodePath("../PathRecorder")
+hud_path = NodePath("../GhostHUD")
+game_over_path = NodePath("../GameOver")
+
 [node name="FirefliesFront" type="Node2D" parent="."]
 script = ExtResource("4_fireflies")
 count = 8
@@ -147,5 +166,9 @@ vertical_alignment = 1
 [node name="ControlsHint" parent="." instance=ExtResource("14_hint")]
 
 [node name="ScreenFlash" parent="." instance=ExtResource("12_flash")]
+
+[node name="GhostHUD" parent="." instance=ExtResource("18_hud")]
+
+[node name="GameOver" parent="." instance=ExtResource("19_over")]
 
 [node name="PauseMenu" parent="." instance=ExtResource("13_pause")]
