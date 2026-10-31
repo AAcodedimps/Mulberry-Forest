@@ -23,75 +23,6 @@
 [ext_resource type="PackedScene" path="res://scenes/powers/stone_pickup.tscn" id="21_stone"]
 [ext_resource type="PackedScene" path="res://scenes/ui/stone_counter.tscn" id="22_stonecount"]
 
-[sub_resource type="GDScript" id="GDScript_test"]
-script/source = "extends Node
-func _ready():
-	process_mode = Node.PROCESS_MODE_ALWAYS
-	await get_tree().create_timer(0.5).timeout
-	var lvl = get_parent()
-	var gm = lvl.get_node('Ghosts')
-	var pl = lvl.get_node('Player')
-	var th = pl.get_node('StoneThrower')
-	var counter = lvl.get_node('StoneCounter/Box/Shaker/Label')
-	print('TEST start stones=', th.stones, ' counter=', counter.text)
-	Input.action_press('throw')
-	await get_tree().physics_frame
-	await get_tree().physics_frame
-	Input.action_release('throw')
-	await get_tree().create_timer(0.05).timeout
-	print('TEST empty F: aiming=', th.is_aiming(), ' counter_colour=', counter.modulate, ' stones=', th.stones)
-	pl.global_position = Vector2(334, 595)
-	await get_tree().create_timer(0.4).timeout
-	print('TEST after walking on group A: stones=', th.stones, ' counter=', counter.text, ' stones_left_in_level=', lvl.get_node('Stones').get_child_count())
-	th.stones = 5
-	pl.global_position = Vector2(1397, 595)
-	await get_tree().create_timer(0.4).timeout
-	print('TEST full pouch over group B: stones=', th.stones, ' stones_left_in_level=', lvl.get_node('Stones').get_child_count())
-	pl.global_position = Vector2(900, 595)
-	await get_tree().create_timer(0.3).timeout
-	pl.facing = -1
-	Input.action_press('throw')
-	await get_tree().create_timer(0.3).timeout
-	print('TEST aiming=', th.is_aiming(), ' preview_points=', th._preview.size(), ' lands=', th._preview_lands, ' angle=', th.aim_angle)
-	Input.action_release('throw')
-	await get_tree().physics_frame
-	await get_tree().physics_frame
-	var flying = []
-	for c in lvl.get_children():
-		if c.name.begins_with('ThrownStone') or (c.get_script() != null and c.get_script().resource_path.ends_with('thrown_stone.gd')):
-			flying.append(c)
-	print('TEST after release: aiming=', th.is_aiming(), ' stones=', th.stones, ' counter=', counter.text, ' flying=', flying.size())
-	await get_tree().create_timer(1.5).timeout
-	print('TEST thrown stone gone after landing=', flying.size() > 0 and not is_instance_valid(flying[0]))
-	var Stone = load('res://scenes/powers/thrown_stone.tscn')
-	gm.raise_mischief_ghost()
-	var mg = get_tree().get_nodes_in_group('mischief_ghosts')[0]
-	await get_tree().create_timer(0.3).timeout
-	var s1 = Stone.instantiate()
-	s1.velocity = Vector2(-500, 0)
-	s1.gravity = 0.0
-	lvl.add_child(s1)
-	s1.global_position = mg.global_position + Vector2(80, -50)
-	await get_tree().create_timer(0.4).timeout
-	print('TEST mischief hit: in_group=', mg.is_inside_tree() and mg.is_in_group('mischief_ghosts'), ' hud=', lvl.get_node('GhostHUD/MischiefCounter').text)
-	gm.raise_ghost()
-	var kg = get_tree().get_nodes_in_group('ghosts')[0]
-	await get_tree().create_timer(2.2).timeout
-	var before = kg.global_position
-	var s2 = Stone.instantiate()
-	s2.velocity = Vector2(-500, 0)
-	s2.gravity = 0.0
-	lvl.add_child(s2)
-	s2.global_position = kg.global_position + Vector2(80, -50)
-	await get_tree().create_timer(0.3).timeout
-	print('TEST killer hit: was ', before, ' now ', kg.global_position, ' stunned=', kg.is_stunned(), ' paused=', get_tree().paused)
-	var p = kg.global_position
-	await get_tree().create_timer(1.5).timeout
-	print('TEST killer still frozen after 1.5s: moved=', kg.global_position.distance_to(p), ' stunned=', kg.is_stunned())
-	await get_tree().create_timer(2.0).timeout
-	print('TEST killer moving again: moved=', kg.global_position.distance_to(p), ' stunned=', kg.is_stunned())
-"
-
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wall"]
 size = Vector2(40, 2000)
 
@@ -262,6 +193,3 @@ vertical_alignment = 1
 [node name="GameOver" parent="." instance=ExtResource("19_over")]
 
 [node name="PauseMenu" parent="." instance=ExtResource("13_pause")]
-
-[node name="SmokeTest" type="Node" parent="."]
-script = SubResource("GDScript_test")
