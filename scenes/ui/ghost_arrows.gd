@@ -1,6 +1,6 @@
 extends Control
-## For every killer ghost that is off screen, draws a pulsing red arrow at the edge of the
-## screen pointing toward it, so you can feel it coming.
+## For every ghost that is off screen, draws a pulsing arrow at the edge of the screen
+## pointing toward it: red for killer ghosts, green for mischief ghosts.
 
 const MARGIN := 34.0
 
@@ -25,7 +25,8 @@ func _draw() -> void:
 			continue
 		var perp := Vector2(-dir.y, dir.x)
 		var tri := PackedVector2Array([pos + dir * 18.0, pos - dir * 10.0 + perp * 13.0, pos - dir * 10.0 - perp * 13.0])
-		draw_colored_polygon(tri, Color(1.0, 0.15, 0.2, pulse))
+		var col := Color(0.35, 1.0, 0.4, pulse) if ghost.is_in_group("mischief_ghosts") else Color(1.0, 0.15, 0.2, pulse)
+		draw_colored_polygon(tri, col)
 		var outline := tri.duplicate()
 		outline.append(tri[0])
 		draw_polyline(outline, Color(0.15, 0.0, 0.03, 0.9), 2.0)

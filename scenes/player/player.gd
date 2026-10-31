@@ -27,7 +27,10 @@ const LAYER_WORLD := 1
 const LAYER_PLATFORMS := 4
 const LAYER_HOLE_LID := 8
 
-enum State { NORMAL, CLIMBING, TRIPPED }
+@export_group("Testing")
+@export var start_mulberries: int = 0  ## Mulberries in the basket at the start (set above 0 to test the basket-steal trick).
+
+enum State { NORMAL, CLIMBING, TRIPPED, SHOVED }
 
 ## Sent after the wanderer is put back somewhere (e.g. after a hole). The path recorder uses it.
 signal respawned(pos: Vector2)
@@ -44,13 +47,22 @@ var _trip_timer: float = 0.0
 var _blink_timer: float = 0.0
 var _regrab_timer: float = 0.0
 var _start_position: Vector2
+var mulberries: int = 0          ## Mulberries in the basket (nothing collects them yet).
+var _slow_timer: float = 0.0     # mischief "Slow" trick
+var _slow_mult: float = 1.0
+var _shove_timer: float = 0.0    # mischief "Shove" trick
+var _shove_decel: float = 0.0
+var _popup_tween: Tween
 
 @onready var look = $Look  # the drawing node (wanderer_look.gd)
 @onready var camera: Camera2D = $Camera2D
+@onready var popup: Label = $Popup
 
 
 func _ready() -> void:
 	_start_position = global_position
+	mulberries = start_mulberries
+	popup.modulate.a = 0.0
 	last_floor_x = global_position.x
 	_update_collision_mask()
 	camera.reset_smoothing()
@@ -81,6 +93,8 @@ func _physics_process(delta: float) -> void:
 			_process_climbing(delta)
 		State.TRIPPED:
 			_process_tripped(delta)
+		State.SHOVED:
+			_process_shoved(delta)
 	move_and_slide()
 	if is_on_floor():
 		_coyote = coyote_time
@@ -94,6 +108,8 @@ func _tick_timers(delta: float) -> void:
 	_coyote -= delta
 	_jump_buffer -= delta
 	_regrab_timer -= delta
+	if _slow_timer > 0.0:
+		_slow_timer -= delta
 	if _blink_timer > 0.0:
 		_blink_timer -= delta
 		if _blink_timer <= 0.0:
@@ -125,7 +141,7 @@ func _process_normal(delta: float) -> void:
 	if planted:
 		velocity.x = 0.0
 	else:
-		var target: float = dir * run_speed
+		var target: float = dir * run_speed * _speed_mult()
 		var rate: float
 		if not on_floor:
 			rate = air_accel if dir != 0.0 else air_accel * 0.5
@@ -179,7 +195,7 @@ func _process_climbing(delta: float) -> void:
 	global_position.x = move_toward(global_position.x, current_vine.global_position.x, 600.0 * delta)
 	velocity.x = 0.0
 	var v: float = Input.get_axis("move_up", "move_down")
-	velocity.y = v * climb_speed
+	velocity.y = v * climb_speed * _speed_mult()
 	var dir: float = Input.get_axis("move_left", "move_right")
 	if dir != 0.0:
 		facing = 1 if dir > 0.0 else -1
@@ -221,6 +237,62 @@ func _process_tripped(delta: float) -> void:
 	velocity.y = minf(velocity.y + _jump_gravity() * fall_gravity_mult * delta, max_fall_speed)
 	if _trip_timer <= 0.0:
 		state = State.NORMAL
+
+
+# ---------------------------------------------------------------- mischief ghost tricks
+func _speed_mult() -> float:
+	return _slow_mult if _slow_timer > 0.0 else 1.0
+
+
+## Shove trick: slide `distance` pixels (negative = left) over `time` seconds, stumbling, no control.
+func shove(distance: float, time: float) -> void:
+	if state == State.CLIMBING:
+		_stop_climbing()
+	current_vine = null
+	state = State.SHOVED
+	planted = false
+	_shove_timer = time
+	velocity.x = 2.0 * distance / time      # starts fast, slows to a stop after `time`
+	_shove_decel = absf(velocity.x) / time
+	velocity.y = minf(velocity.y, -140.0)   # a little stumble-hop
+	_update_collision_mask()
+
+
+func _process_shoved(delta: float) -> void:
+	velocity.x = move_toward(velocity.x, 0.0, _shove_decel * delta)
+	velocity.y = minf(velocity.y + _jump_gravity() * fall_gravity_mult * delta, max_fall_speed)
+	_shove_timer -= delta
+	if _shove_timer <= 0.0:
+		state = State.NORMAL
+
+
+## Slow trick: move at `multiplier` speed (0.6 = 60%) for `seconds`.
+func apply_slow(multiplier: float, seconds: float) -> void:
+	_slow_mult = multiplier
+	_slow_timer = seconds
+
+
+func has_mulberries() -> bool:
+	return mulberries > 0
+
+
+## Basket trick: empties the basket. Returns how many mulberries were in it.
+func empty_basket() -> int:
+	var lost: int = mulberries
+	mulberries = 0
+	return lost
+
+
+## Shows a short word above the wanderer's head that floats up and fades.
+func show_popup(text: String) -> void:
+	popup.text = text
+	popup.position = Vector2(-150, -175)
+	popup.modulate.a = 1.0
+	if _popup_tween:
+		_popup_tween.kill()
+	_popup_tween = create_tween()
+	_popup_tween.tween_property(popup, "position:y", -215.0, 1.4)
+	_popup_tween.parallel().tween_property(popup, "modulate:a", 0.0, 0.6).set_delay(0.8)
 
 
 # ---------------------------------------------------------------- squashing ghosts
@@ -266,6 +338,8 @@ func _update_look() -> void:
 	var pose: String = "idle"
 	if state == State.TRIPPED:
 		pose = "tripped"
+	elif state == State.SHOVED:
+		pose = "stumble"
 	elif state == State.CLIMBING:
 		pose = "climb_move" if velocity.y != 0.0 else "climb"
 	elif not is_on_floor():
@@ -275,6 +349,7 @@ func _update_look() -> void:
 	elif absf(velocity.x) > 10.0:
 		pose = "run"
 	look.pose = pose
+	look.slowed = _slow_timer > 0.0
 	look.speed_ratio = clampf(absf(velocity.x) / run_speed, 0.0, 1.0)
 	if _blink_timer > 0.0:
 		look.visible = fmod(_blink_timer, 0.16) > 0.08

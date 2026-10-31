@@ -19,6 +19,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ghosts/killer_ghost.tscn" id="17_ghost"]
 [ext_resource type="PackedScene" path="res://scenes/ui/ghost_hud.tscn" id="18_hud"]
 [ext_resource type="PackedScene" path="res://scenes/ui/game_over.tscn" id="19_over"]
+[ext_resource type="PackedScene" path="res://scenes/ghosts/mischief_ghost.tscn" id="20_mischief"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wall"]
 size = Vector2(40, 2000)
@@ -133,6 +134,7 @@ player_path = NodePath("../Player")
 [node name="Ghosts" type="Node2D" parent="."]
 script = ExtResource("16_manager")
 ghost_scene = ExtResource("17_ghost")
+mischief_scene = ExtResource("20_mischief")
 player_path = NodePath("../Player")
 recorder_path = NodePath("../PathRecorder")
 hud_path = NodePath("../GhostHUD")

@@ -1,9 +1,11 @@
 extends CanvasLayer
-## Ghost information on screen: the "Ghosts: N" counter in the top-right corner (with a
-## reminder of how to squash them while any are chasing you) and the short message at the
-## top when a ghost rises or is squashed. The red off-screen arrows are drawn by Arrows.
+## Ghost information on screen: the "Killer ghosts" and "Mischief ghosts" counters in the
+## top-right corner (with a reminder of how to squash killer ghosts while any are chasing),
+## and the short message at the top when something happens. The coloured off-screen arrows
+## are drawn by Arrows.
 
 @onready var counter: Label = $Counter
+@onready var mischief_counter: Label = $MischiefCounter
 @onready var tip: Label = $Tip
 @onready var message: Label = $Message
 
@@ -15,9 +17,10 @@ func _ready() -> void:
 	tip.visible = false
 
 
-func set_ghost_count(n: int) -> void:
-	counter.text = "Ghosts: %d" % n
-	tip.visible = n > 0
+func set_counts(killer: int, mischief: int) -> void:
+	counter.text = "Killer ghosts: %d" % killer
+	mischief_counter.text = "Mischief ghosts: %d" % mischief
+	tip.visible = killer > 0
 
 
 func show_message(text: String) -> void:

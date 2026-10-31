@@ -20,13 +20,18 @@ const RIM := Color(0.86, 0.96, 0.7, 0.9)   # light outline so the wanderer stand
 var facing: int = 1
 var pose: String = "idle"
 var speed_ratio: float = 0.0
+var slowed: bool = false   # true while a mischief ghost's Slow trick is active
 var _t: float = 0.0
 
 
 func _process(delta: float) -> void:
 	_t += delta
 	scale = Vector2(size_scale if facing >= 0 else -size_scale, size_scale)
-	var target_rot: float = (PI * 0.5 * facing) if pose == "tripped" else 0.0
+	var target_rot: float = 0.0
+	if pose == "tripped":
+		target_rot = PI * 0.5 * facing
+	elif pose == "stumble":
+		target_rot = (-0.35 + sin(_t * 30.0) * 0.08) * facing   # lean back, wobbling
 	rotation = lerp_angle(rotation, target_rot, minf(1.0, 18.0 * delta))
 	queue_redraw()
 
@@ -122,5 +127,13 @@ func _draw() -> void:
 			else:
 				draw_circle(Vector2(ex, -37), 1.1, EYE)
 		draw_circle(Vector2(8.5, -33.5), 1.4, CHEEK)
+
+	# Green swirls circling the wanderer while slowed
+	if slowed:
+		for k in 3:
+			var a: float = _t * 3.0 + k * TAU / 3.0
+			var c := Vector2(cos(a) * 17.0, -24.0 + sin(a * 1.3) * 16.0)
+			draw_arc(c, 3.5, _t * 6.0, _t * 6.0 + 4.0, 10, Color(0.45, 1.0, 0.45, 0.85), 1.2)
+			draw_arc(c, 1.8, _t * 6.0 + 1.0, _t * 6.0 + 4.5, 8, Color(0.75, 1.0, 0.6, 0.85), 1.0)
 
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
