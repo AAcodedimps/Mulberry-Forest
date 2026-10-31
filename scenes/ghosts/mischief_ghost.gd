@@ -45,7 +45,25 @@ var _puff: float = -1.0   # -1 = still here; 0..1 = vanishing in sparkles
 func _ready() -> void:
 	add_to_group("ghosts")
 	add_to_group("mischief_ghosts")
+	add_to_group("stone_targets")
 	modulate.a = 0.0
+
+
+# ---------------------------------------------------------------- stones
+const FloatingText = preload("res://scenes/ui/floating_text.gd")
+
+
+## Stone target: true if a stone at `point` touches this ghost's body.
+func stone_hit_test(point: Vector2) -> bool:
+	if _puff >= 0.0:
+		return false
+	return point.distance_to(global_position + Vector2(0, -50)) <= 46.0
+
+
+## Stone target: a stone banishes a mischief ghost for good.
+func on_stone_hit(_stone) -> void:
+	FloatingText.spawn(get_parent(), global_position, "Banished!", Color(0.6, 1.0, 0.6))
+	banish()
 
 
 ## Called by the ghost manager right after the ghost is created.
@@ -148,6 +166,7 @@ func _vanish() -> void:
 	_puff = 0.0
 	remove_from_group("ghosts")
 	remove_from_group("mischief_ghosts")
+	remove_from_group("stone_targets")
 	vanished.emit(self)
 
 

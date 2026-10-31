@@ -43,7 +43,26 @@ var _squash: float = -1.0   # -1 = alive; 0..1 = being squashed flat
 
 func _ready() -> void:
 	add_to_group("ghosts")
+	add_to_group("stone_targets")
 	modulate.a = 0.0
+
+
+# ---------------------------------------------------------------- stones
+const FloatingText = preload("res://scenes/ui/floating_text.gd")
+
+
+## Stone target: true if a stone at `point` touches this ghost's body.
+func stone_hit_test(point: Vector2) -> bool:
+	if _squash >= 0.0 or _stabbing:
+		return false
+	return point.distance_to(global_position + Vector2(0, -50)) <= 46.0
+
+
+## Stone target: a stone stuns the ghost and knocks it back along its path.
+func on_stone_hit(stone) -> void:
+	stun(stone.stun_time)
+	knock_back(stone.knock_back_time)
+	FloatingText.spawn(get_parent(), global_position, "Stunned!", Color(1.0, 0.85, 0.4))
 
 
 ## Called by the ghost manager right after the ghost is created.
@@ -119,6 +138,7 @@ func _is_being_stomped() -> bool:
 func _get_squashed() -> void:
 	_squash = 0.0
 	remove_from_group("ghosts")   # no more arrow for this one
+	remove_from_group("stone_targets")
 	player.bounce()
 	squashed.emit(self)
 

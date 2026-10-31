@@ -57,6 +57,7 @@ var _popup_tween: Tween
 @onready var look = $Look  # the drawing node (wanderer_look.gd)
 @onready var camera: Camera2D = $Camera2D
 @onready var popup: Label = $Popup
+@onready var stone_thrower = $StoneThrower  # aiming and throwing stones (stone_thrower.gd)
 
 
 func _ready() -> void:
@@ -126,8 +127,10 @@ func _process_normal(delta: float) -> void:
 	if Input.is_action_just_pressed("jump"):
 		_jump_buffer = jump_buffer_time
 
-	# Grab a vine with up (or down while in the air / standing on top of it).
-	if current_vine != null and _regrab_timer <= 0.0:
+	var aiming: bool = stone_thrower.is_aiming()
+
+	# Grab a vine with up (or down while in the air / standing on top of it). Not while aiming.
+	if current_vine != null and _regrab_timer <= 0.0 and not aiming:
 		var vine_above: bool = current_vine.get_top_y() < global_position.y - 8.0
 		var vine_below: bool = current_vine.get_bottom_y() > global_position.y + 4.0
 		var wants_up: bool = Input.is_action_pressed("move_up") and vine_above
@@ -137,11 +140,13 @@ func _process_normal(delta: float) -> void:
 			return
 
 	# Hold down on the ground: plant your feet and stop dead.
-	planted = on_floor and Input.is_action_pressed("move_down")
+	planted = on_floor and Input.is_action_pressed("move_down") and not aiming
 	if planted:
 		velocity.x = 0.0
 	else:
 		var target: float = dir * run_speed * _speed_mult()
+		if aiming:
+			target *= stone_thrower.aim_walk_multiplier   # walk slower while aiming a stone
 		var rate: float
 		if not on_floor:
 			rate = air_accel if dir != 0.0 else air_accel * 0.5
@@ -196,6 +201,8 @@ func _process_climbing(delta: float) -> void:
 	velocity.x = 0.0
 	var v: float = Input.get_axis("move_up", "move_down")
 	velocity.y = v * climb_speed * _speed_mult()
+	if stone_thrower.is_aiming():
+		velocity.y = 0.0   # W/S aim instead of climbing; just hang on
 	var dir: float = Input.get_axis("move_left", "move_right")
 	if dir != 0.0:
 		facing = 1 if dir > 0.0 else -1
@@ -293,6 +300,17 @@ func show_popup(text: String) -> void:
 	_popup_tween = create_tween()
 	_popup_tween.tween_property(popup, "position:y", -215.0, 1.4)
 	_popup_tween.parallel().tween_property(popup, "modulate:a", 0.0, 0.6).set_delay(0.8)
+
+
+# ---------------------------------------------------------------- stones
+## Called by a stone on the ground. Returns true if we had room and picked it up.
+func try_pick_up_stone() -> bool:
+	return stone_thrower.add_stone()
+
+
+## Aiming is only possible while walking/standing/jumping or hanging on a vine.
+func can_aim() -> bool:
+	return state == State.NORMAL or state == State.CLIMBING
 
 
 # ---------------------------------------------------------------- squashing ghosts

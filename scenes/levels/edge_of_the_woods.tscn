@@ -20,6 +20,8 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/ghost_hud.tscn" id="18_hud"]
 [ext_resource type="PackedScene" path="res://scenes/ui/game_over.tscn" id="19_over"]
 [ext_resource type="PackedScene" path="res://scenes/ghosts/mischief_ghost.tscn" id="20_mischief"]
+[ext_resource type="PackedScene" path="res://scenes/powers/stone_pickup.tscn" id="21_stone"]
+[ext_resource type="PackedScene" path="res://scenes/ui/stone_counter.tscn" id="22_stonecount"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wall"]
 size = Vector2(40, 2000)
@@ -113,6 +115,23 @@ hole_width = 96.0
 [node name="TreeTrunk" parent="." instance=ExtResource("8_trunk")]
 position = Vector2(620, 600)
 
+[node name="Stones" type="Node2D" parent="."]
+
+[node name="StoneA1" parent="Stones" instance=ExtResource("21_stone")]
+position = Vector2(300, 600)
+
+[node name="StoneA2" parent="Stones" instance=ExtResource("21_stone")]
+position = Vector2(334, 600)
+
+[node name="StoneA3" parent="Stones" instance=ExtResource("21_stone")]
+position = Vector2(368, 600)
+
+[node name="StoneB1" parent="Stones" instance=ExtResource("21_stone")]
+position = Vector2(1380, 600)
+
+[node name="StoneB2" parent="Stones" instance=ExtResource("21_stone")]
+position = Vector2(1414, 600)
+
 [node name="LevelBounds" type="StaticBody2D" parent="."]
 collision_mask = 0
 
@@ -168,6 +187,8 @@ vertical_alignment = 1
 [node name="ScreenFlash" parent="." instance=ExtResource("12_flash")]
 
 [node name="GhostHUD" parent="." instance=ExtResource("18_hud")]
+
+[node name="StoneCounter" parent="." instance=ExtResource("22_stonecount")]
 
 [node name="GameOver" parent="." instance=ExtResource("19_over")]
 
