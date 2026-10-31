@@ -1,0 +1,151 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/levels/level.gd" id="1_level"]
+[ext_resource type="Script" path="res://scenes/world/dusk_sky.gd" id="2_sky"]
+[ext_resource type="Script" path="res://scenes/world/forest_layer.gd" id="3_forest"]
+[ext_resource type="Script" path="res://scenes/world/fireflies.gd" id="4_fireflies"]
+[ext_resource type="PackedScene" path="res://scenes/world/ground_segment.tscn" id="5_ground"]
+[ext_resource type="PackedScene" path="res://scenes/world/branch_platform.tscn" id="6_branch"]
+[ext_resource type="PackedScene" path="res://scenes/world/stone_arch.tscn" id="7_arch"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/tree_trunk.tscn" id="8_trunk"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/hole.tscn" id="9_hole"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/vine.tscn" id="10_vine"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="11_player"]
+[ext_resource type="PackedScene" path="res://scenes/ui/screen_flash.tscn" id="12_flash"]
+[ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="13_pause"]
+[ext_resource type="PackedScene" path="res://scenes/ui/controls_hint.tscn" id="14_hint"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall"]
+size = Vector2(40, 2000)
+
+[node name="EdgeOfTheWoods" type="Node2D"]
+script = ExtResource("1_level")
+
+[node name="SkyLayer" type="CanvasLayer" parent="."]
+layer = -10
+
+[node name="DuskSky" type="Control" parent="SkyLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_sky")
+
+[node name="FarTrees" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.2, 1)
+
+[node name="Layer" type="Node2D" parent="FarTrees"]
+script = ExtResource("3_forest")
+tree_color = Color(0.227, 0.498, 0.525, 1)
+shade_color = Color(0.173, 0.4, 0.439, 1)
+hill_y = 470.0
+tree_count = 40
+min_height = 200.0
+max_height = 340.0
+layer_seed = 5
+
+[node name="MidTrees" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.45, 1)
+
+[node name="Layer" type="Node2D" parent="MidTrees"]
+script = ExtResource("3_forest")
+tree_color = Color(0.137, 0.42, 0.373, 1)
+shade_color = Color(0.102, 0.314, 0.286, 1)
+hill_y = 525.0
+tree_count = 32
+min_height = 180.0
+max_height = 300.0
+layer_seed = 9
+
+[node name="NearTrees" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.7, 1)
+
+[node name="Layer" type="Node2D" parent="NearTrees"]
+script = ExtResource("3_forest")
+tree_color = Color(0.09, 0.282, 0.227, 1)
+shade_color = Color(0.063, 0.204, 0.157, 1)
+hill_y = 575.0
+tree_count = 22
+min_height = 240.0
+max_height = 420.0
+layer_seed = 13
+
+[node name="FirefliesBack" type="Node2D" parent="."]
+script = ExtResource("4_fireflies")
+count = 16
+area = Rect2(0, 240, 2560, 300)
+swarm_seed = 3
+
+[node name="StoneArch" parent="." instance=ExtResource("7_arch")]
+position = Vector2(2400, 600)
+
+[node name="Vine" parent="." instance=ExtResource("10_vine")]
+position = Vector2(1640, 394)
+length = 176.0
+
+[node name="BranchPlatform" parent="." instance=ExtResource("6_branch")]
+position = Vector2(1680, 400)
+width = 240.0
+
+[node name="GroundLeft" parent="." instance=ExtResource("5_ground")]
+position = Vector2(0, 600)
+width = 1180.0
+decor_seed = 1
+
+[node name="GroundRight" parent="." instance=ExtResource("5_ground")]
+position = Vector2(1276, 600)
+width = 1284.0
+decor_seed = 2
+
+[node name="Hole" parent="." instance=ExtResource("9_hole")]
+position = Vector2(1228, 600)
+hole_width = 96.0
+
+[node name="TreeTrunk" parent="." instance=ExtResource("8_trunk")]
+position = Vector2(620, 600)
+
+[node name="LevelBounds" type="StaticBody2D" parent="."]
+collision_mask = 0
+
+[node name="LeftWall" type="CollisionShape2D" parent="LevelBounds"]
+position = Vector2(-20, 0)
+shape = SubResource("RectangleShape2D_wall")
+
+[node name="RightWall" type="CollisionShape2D" parent="LevelBounds"]
+position = Vector2(2580, 0)
+shape = SubResource("RectangleShape2D_wall")
+
+[node name="Player" parent="." instance=ExtResource("11_player")]
+position = Vector2(120, 600)
+
+[node name="FirefliesFront" type="Node2D" parent="."]
+script = ExtResource("4_fireflies")
+count = 8
+area = Rect2(0, 380, 2560, 200)
+swarm_seed = 21
+
+[node name="TitleLayer" type="CanvasLayer" parent="."]
+layer = 5
+
+[node name="Title" type="Label" parent="TitleLayer"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 70.0
+offset_bottom = 140.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.98, 0.91, 0.78, 1)
+theme_override_colors/font_outline_color = Color(0.12, 0.06, 0.18, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 48
+text = "Edge of the Woods"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ControlsHint" parent="." instance=ExtResource("14_hint")]
+
+[node name="ScreenFlash" parent="." instance=ExtResource("12_flash")]
+
+[node name="PauseMenu" parent="." instance=ExtResource("13_pause")]

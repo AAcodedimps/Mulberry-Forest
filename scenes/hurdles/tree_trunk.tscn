@@ -1,0 +1,23 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/hurdles/tree_trunk.gd" id="1_trunk"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_trip"]
+size = Vector2(160, 50)
+
+[node name="TreeTrunk" type="Node2D"]
+script = ExtResource("1_trunk")
+
+[node name="Body" type="StaticBody2D" parent="."]
+collision_mask = 0
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Body"]
+polygon = PackedVector2Array(-70, 0, -26, -40, 26, -40, 70, 0, 70, 6, -70, 6)
+
+[node name="TripZone" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TripZone"]
+position = Vector2(0, -25)
+shape = SubResource("RectangleShape2D_trip")
