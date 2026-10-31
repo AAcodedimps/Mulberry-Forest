@@ -15,7 +15,7 @@ const STRAP := Color("6b4423")
 const BOOT := Color("3b2618")
 const RIM := Color(0.86, 0.96, 0.7, 0.9)   # light outline so the wanderer stands out at dusk
 
-@export var size_scale: float = 1.4  ## How big the wanderer is drawn (keep the collision box in player.tscn matching).
+@export var size_scale: float = 2.1  ## How big the wanderer is drawn (keep the collision box in player.tscn matching).
 
 var facing: int = 1
 var pose: String = "idle"

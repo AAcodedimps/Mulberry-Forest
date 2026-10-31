@@ -10,6 +10,8 @@ func _ready() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("pause"):
+		if not get_tree().get_nodes_in_group("run_over").is_empty():
+			return  # the run is over: Esc does nothing, use Retry or R
 		get_tree().paused = not get_tree().paused
 		visible = get_tree().paused
 		get_viewport().set_input_as_handled()

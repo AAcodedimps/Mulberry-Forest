@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://scenes/player/wanderer_look.gd" id="2_look"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
-size = Vector2(30, 62)
+size = Vector2(44, 92)
 
 [node name="Player" type="CharacterBody2D" groups=["player"]]
 collision_layer = 2
@@ -15,14 +15,14 @@ floor_snap_length = 8.0
 script = ExtResource("1_player")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, -31)
+position = Vector2(0, -46)
 shape = SubResource("RectangleShape2D_body")
 
 [node name="Look" type="Node2D" parent="."]
 script = ExtResource("2_look")
 
 [node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(0, -70)
+position = Vector2(0, -100)
 zoom = Vector2(1.4, 1.4)
 limit_left = 0
 limit_top = 0

@@ -3,10 +3,10 @@ extends CharacterBody2D
 ## planting feet, climbing vines, tripping over trunks, and being put back after falling in a hole.
 
 # ======================= TUNING: change these to adjust the feel =======================
-@export var run_speed: float = 260.0    ## Top running speed, in pixels per second.
-@export var jump_height: float = 150.0  ## Height of a full (held) jump, in pixels. A quick tap gives a small hop.
-@export var climb_speed: float = 150.0  ## Speed going up and down vines, in pixels per second.
-@export var trip_speed: float = 230.0   ## Running into a trunk at this speed or faster makes you trip.
+@export var run_speed: float = 290.0    ## Top running speed, in pixels per second.
+@export var jump_height: float = 170.0  ## Height of a full (held) jump, in pixels. A quick tap gives a small hop. Keep below 200 so the branch still needs the vine.
+@export var climb_speed: float = 170.0  ## Speed going up and down vines, in pixels per second.
+@export var trip_speed: float = 255.0   ## Running into a trunk at this speed or faster makes you trip.
 # =======================================================================================
 
 @export_group("Fine tuning")
@@ -28,6 +28,9 @@ const LAYER_PLATFORMS := 4
 const LAYER_HOLE_LID := 8
 
 enum State { NORMAL, CLIMBING, TRIPPED }
+
+## Sent after the wanderer is put back somewhere (e.g. after a hole). The path recorder uses it.
+signal respawned(pos: Vector2)
 
 var state: State = State.NORMAL
 var facing: int = 1
@@ -220,6 +223,14 @@ func _process_tripped(delta: float) -> void:
 		state = State.NORMAL
 
 
+# ---------------------------------------------------------------- squashing ghosts
+## Called by a ghost we just landed on: spring back up (higher if jump is held).
+func bounce() -> void:
+	velocity.y = -_jump_velocity() * (0.85 if Input.is_action_pressed("jump") else 0.6)
+	_coyote = 0.0
+	_jump_buffer = 0.0
+
+
 # ---------------------------------------------------------------- holes / respawn
 func is_blinking() -> bool:
 	return _blink_timer > 0.0
@@ -237,6 +248,7 @@ func respawn_at(pos: Vector2) -> void:
 	_blink_timer = blink_duration
 	last_floor_x = pos.x
 	_update_collision_mask()
+	respawned.emit(pos)
 
 
 func _update_collision_mask() -> void:

@@ -10,7 +10,7 @@ extends Node2D
 		hole_width = value
 		queue_redraw()
 @export var depth: float = 140.0
-@export var edge_margin: float = 30.0  ## How far from the hole's lip you reappear.
+@export var edge_margin: float = 42.0  ## How far from the hole's lip you reappear.
 
 var _t: float = 0.0
 
