@@ -16,6 +16,7 @@ extends Node2D
 @export var start_aim_angle: float = 30.0    ## Aim angle when you start aiming the first time.
 @export var aim_turn_speed: float = 90.0     ## How fast W/S tilt the arc (degrees per second).
 @export var aim_walk_multiplier: float = 0.5 ## Walking speed while aiming (0.5 = half speed).
+@export var tap_time: float = 0.2            ## Under the mulberry tree: letting go of F within this many seconds counts as a tap (shake the tree); holding longer aims as normal.
 
 const STONE_SCENE := preload("res://scenes/powers/thrown_stone.tscn")
 const HAND := Vector2(26, -72)          # where the stone leaves the hand (facing right)
@@ -27,6 +28,8 @@ var aim_angle: float = 30.0
 var _aiming: bool = false
 var _preview := PackedVector2Array()    # arc points (global)
 var _preview_lands: bool = false
+var current_tree = null                 # the mulberry tree we're standing under (set by the tree)
+var _tap_timer: float = -1.0            # >= 0 while F is down under the tree and we don't know yet if it's a tap
 
 @onready var player = get_parent()
 
@@ -49,12 +52,35 @@ func add_stone() -> bool:
 	return true
 
 
+## Takes one stone out of the pouch (the mulberry tree uses this). Returns false if empty.
+func use_stone() -> bool:
+	if stones <= 0:
+		return false
+	stones -= 1
+	_notify_counter()
+	return true
+
+
 func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed("throw"):
 		if stones <= 0:
 			get_tree().call_group("stone_counter", "shake")
 		elif player.can_aim():
-			_aiming = true
+			if current_tree != null:
+				_tap_timer = 0.0     # under the tree: wait to see if this is a tap or a hold
+			else:
+				_aiming = true
+	if _tap_timer >= 0.0:
+		_tap_timer += delta
+		if not player.can_aim():
+			_tap_timer = -1.0
+		elif not Input.is_action_pressed("throw"):
+			_tap_timer = -1.0
+			if current_tree != null:
+				current_tree.try_shake(player)   # quick tap: throw a stone up into the tree
+		elif _tap_timer >= tap_time:
+			_tap_timer = -1.0
+			_aiming = true                       # held: aim at ghosts like normal
 	if _aiming:
 		if not player.can_aim():
 			_aiming = false   # got tripped or shoved: aiming is cancelled

@@ -6,7 +6,7 @@
 [ext_resource type="Script" path="res://scenes/world/fireflies.gd" id="4_fireflies"]
 [ext_resource type="PackedScene" path="res://scenes/world/ground_segment.tscn" id="5_ground"]
 [ext_resource type="PackedScene" path="res://scenes/world/branch_platform.tscn" id="6_branch"]
-[ext_resource type="PackedScene" path="res://scenes/world/stone_arch.tscn" id="7_arch"]
+[ext_resource type="PackedScene" path="res://scenes/forest_end/mulberry_tree.tscn" id="7_tree"]
 [ext_resource type="PackedScene" path="res://scenes/hurdles/tree_trunk.tscn" id="8_trunk"]
 [ext_resource type="PackedScene" path="res://scenes/hurdles/hole.tscn" id="9_hole"]
 [ext_resource type="PackedScene" path="res://scenes/hurdles/vine.tscn" id="10_vine"]
@@ -22,6 +22,11 @@
 [ext_resource type="PackedScene" path="res://scenes/ghosts/mischief_ghost.tscn" id="20_mischief"]
 [ext_resource type="PackedScene" path="res://scenes/powers/stone_pickup.tscn" id="21_stone"]
 [ext_resource type="PackedScene" path="res://scenes/ui/stone_counter.tscn" id="22_stonecount"]
+[ext_resource type="PackedScene" path="res://scenes/forest_end/stone_gate.tscn" id="23_gate"]
+[ext_resource type="Script" path="res://scenes/forest_end/clearing.gd" id="24_clearing"]
+[ext_resource type="PackedScene" path="res://scenes/ui/prompt_hint.tscn" id="25_prompt"]
+[ext_resource type="PackedScene" path="res://scenes/ui/basket_counter.tscn" id="26_basket"]
+[ext_resource type="PackedScene" path="res://scenes/ui/win_screen.tscn" id="27_win"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wall"]
 size = Vector2(40, 2000)
@@ -84,11 +89,19 @@ layer_seed = 13
 [node name="FirefliesBack" type="Node2D" parent="."]
 script = ExtResource("4_fireflies")
 count = 16
-area = Rect2(0, 240, 2560, 300)
+area = Rect2(0, 240, 3000, 300)
 swarm_seed = 3
 
-[node name="StoneArch" parent="." instance=ExtResource("7_arch")]
-position = Vector2(2400, 600)
+[node name="Clearing" type="Node2D" parent="."]
+position = Vector2(2150, 600)
+script = ExtResource("24_clearing")
+width = 850.0
+
+[node name="MulberryTree" parent="." instance=ExtResource("7_tree")]
+position = Vector2(2330, 600)
+
+[node name="StoneGate" parent="." instance=ExtResource("23_gate")]
+position = Vector2(2760, 600)
 
 [node name="Vine" parent="." instance=ExtResource("10_vine")]
 position = Vector2(1640, 394)
@@ -105,7 +118,7 @@ decor_seed = 1
 
 [node name="GroundRight" parent="." instance=ExtResource("5_ground")]
 position = Vector2(1276, 600)
-width = 1284.0
+width = 1724.0
 decor_seed = 2
 
 [node name="Hole" parent="." instance=ExtResource("9_hole")]
@@ -140,7 +153,7 @@ position = Vector2(-20, 0)
 shape = SubResource("RectangleShape2D_wall")
 
 [node name="RightWall" type="CollisionShape2D" parent="LevelBounds"]
-position = Vector2(2580, 0)
+position = Vector2(3020, 0)
 shape = SubResource("RectangleShape2D_wall")
 
 [node name="Player" parent="." instance=ExtResource("11_player")]
@@ -162,7 +175,7 @@ game_over_path = NodePath("../GameOver")
 [node name="FirefliesFront" type="Node2D" parent="."]
 script = ExtResource("4_fireflies")
 count = 8
-area = Rect2(0, 380, 2560, 200)
+area = Rect2(0, 380, 3000, 200)
 swarm_seed = 21
 
 [node name="TitleLayer" type="CanvasLayer" parent="."]
@@ -190,6 +203,12 @@ vertical_alignment = 1
 
 [node name="StoneCounter" parent="." instance=ExtResource("22_stonecount")]
 
+[node name="BasketCounter" parent="." instance=ExtResource("26_basket")]
+
+[node name="PromptHint" parent="." instance=ExtResource("25_prompt")]
+
 [node name="GameOver" parent="." instance=ExtResource("19_over")]
+
+[node name="WinScreen" parent="." instance=ExtResource("27_win")]
 
 [node name="PauseMenu" parent="." instance=ExtResource("13_pause")]

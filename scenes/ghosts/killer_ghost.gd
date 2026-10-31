@@ -62,6 +62,7 @@ func stone_hit_test(point: Vector2) -> bool:
 func on_stone_hit(stone) -> void:
 	stun(stone.stun_time)
 	knock_back(stone.knock_back_time)
+	GameEvents.report_ghost_beaten(self)
 	FloatingText.spawn(get_parent(), global_position, "Stunned!", Color(1.0, 0.85, 0.4))
 
 

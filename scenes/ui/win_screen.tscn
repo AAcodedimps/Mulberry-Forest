@@ -1,0 +1,84 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/ui/win_screen.gd" id="1_win"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_badge"]
+content_margin_left = 18.0
+content_margin_top = 6.0
+content_margin_right = 18.0
+content_margin_bottom = 6.0
+bg_color = Color(0.35, 0.25, 0.05, 0.85)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(1, 0.84, 0.35, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[node name="WinScreen" type="CanvasLayer"]
+process_mode = 3
+layer = 70
+script = ExtResource("1_win")
+
+[node name="Fade" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.03, 0.02, 0.06, 1)
+
+[node name="Center" type="CenterContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Box" type="VBoxContainer" parent="Center"]
+layout_mode = 2
+theme_override_constants/separation = 22
+
+[node name="Title" type="Label" parent="Center/Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 1, 0.82, 1)
+theme_override_colors/font_outline_color = Color(0.02, 0.1, 0.05, 1)
+theme_override_constants/outline_size = 12
+theme_override_font_sizes/font_size = 58
+text = "You escaped the forest"
+horizontal_alignment = 1
+
+[node name="Stats" type="Label" parent="Center/Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.92, 0.85, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.03, 0.08, 1)
+theme_override_constants/outline_size = 6
+theme_override_constants/line_spacing = 6
+theme_override_font_sizes/font_size = 28
+text = "Time: 0:00
+Mistakes: 0
+Ghosts beaten: 0"
+horizontal_alignment = 1
+
+[node name="Badge" type="PanelContainer" parent="Center/Box"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_badge")
+
+[node name="Text" type="Label" parent="Center/Box/Badge"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.45, 1)
+theme_override_font_sizes/font_size = 30
+text = "Clean Escape"
+horizontal_alignment = 1
+
+[node name="PlayAgain" type="Button" parent="Center/Box"]
+custom_minimum_size = Vector2(240, 60)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 30
+text = "Play again"

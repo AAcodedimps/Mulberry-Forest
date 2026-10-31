@@ -13,6 +13,7 @@ var _message_tween: Tween
 
 
 func _ready() -> void:
+	add_to_group("message_hud")   # others (like the gate) can use show_message too
 	message.modulate.a = 0.0
 	tip.visible = false
 

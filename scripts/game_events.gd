@@ -7,8 +7,10 @@ extends Node
 signal deadly_mistake
 ## Sent when the wanderer makes a small mistake (e.g. trips over a trunk).
 signal clumsy_mistake
-## Sent when a mischief ghost steals the basket (later: mulberries fall back onto the tree).
+## Sent when a mischief ghost steals the basket (the mulberries fly back onto the tree).
 signal basket_stolen
+## Sent when a ghost is beaten with a stone (a killer ghost stunned or a mischief ghost banished).
+signal ghost_beaten(ghost)
 
 
 func report_deadly_mistake() -> void:
@@ -24,3 +26,8 @@ func report_clumsy_mistake() -> void:
 func report_basket_stolen() -> void:
 	print("[GameEvents] basket_stolen")
 	basket_stolen.emit()
+
+
+func report_ghost_beaten(ghost) -> void:
+	print("[GameEvents] ghost_beaten")
+	ghost_beaten.emit(ghost)
