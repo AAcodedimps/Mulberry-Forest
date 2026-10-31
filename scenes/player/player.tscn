@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scenes/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scenes/player/wanderer_look.gd" id="2_look"]
 [ext_resource type="Script" path="res://scenes/powers/stone_thrower.gd" id="3_thrower"]
+[ext_resource type="Script" path="res://scenes/player/shield_bubble.gd" id="4_bubble"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
 size = Vector2(44, 92)
@@ -21,6 +22,9 @@ shape = SubResource("RectangleShape2D_body")
 
 [node name="Look" type="Node2D" parent="."]
 script = ExtResource("2_look")
+
+[node name="ShieldBubble" type="Node2D" parent="."]
+script = ExtResource("4_bubble")
 
 [node name="StoneThrower" type="Node2D" parent="."]
 script = ExtResource("3_thrower")

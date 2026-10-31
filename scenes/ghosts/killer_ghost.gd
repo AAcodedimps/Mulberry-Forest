@@ -100,6 +100,7 @@ func play_stab() -> void:
 
 # ---------------------------------------------------------------- movement
 func _physics_process(delta: float) -> void:
+	delta *= Powers.world_time_scale()   # Moonpetal slows ghosts down
 	_t += delta
 	queue_redraw()
 	if _squash >= 0.0:
@@ -123,8 +124,15 @@ func _physics_process(delta: float) -> void:
 		return
 	_move_along(speed * delta)
 	if global_position.distance_to(player.global_position) <= catch_distance:
-		_stabbing = true
-		caught_player.emit(self)
+		if Powers.has_shield():
+			# Bark Shield: bounce off and get knocked back along the path.
+			knock_back(Powers.shield_knock_back_time)
+			stun(0.5)
+			if Powers.shield_block():
+				FloatingText.spawn(get_parent(), player.global_position, "Blocked!", Color(0.6, 1.0, 0.65))
+		else:
+			_stabbing = true
+			caught_player.emit(self)
 
 
 ## True when the wanderer is falling down onto the top half of this ghost.

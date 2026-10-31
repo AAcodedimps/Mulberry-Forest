@@ -16,6 +16,7 @@ var _beaten := {}   # every ghost beaten with a stone, counted once
 
 
 func _ready() -> void:
+	Powers.reset()   # every run starts with no powers on
 	$Player.set_camera_limits(0, 0, level_width, level_height)
 	var title: Label = $TitleLayer/Title
 	title.modulate.a = 0.0

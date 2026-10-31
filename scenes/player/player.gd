@@ -82,7 +82,8 @@ func set_camera_limits(left: int, top: int, right: int, bottom: int) -> void:
 
 
 func _jump_velocity() -> float:
-	return 2.0 * jump_height / time_to_peak
+	# Same as 2 * jump_height / time_to_peak, but Strength Fig can raise the height.
+	return sqrt(2.0 * _jump_gravity() * jump_height * Powers.jump_multiplier())
 
 
 func _jump_gravity() -> float:
@@ -238,6 +239,9 @@ func try_trip() -> bool:
 		return false
 	if absf(velocity.x) < trip_speed:
 		return false
+	if Powers.has_shield():
+		Powers.shield_block()   # Bark Shield stops trips
+		return false
 	state = State.TRIPPED
 	planted = false
 	_trip_timer = trip_duration
@@ -254,7 +258,8 @@ func _process_tripped(delta: float) -> void:
 
 # ---------------------------------------------------------------- mischief ghost tricks
 func _speed_mult() -> float:
-	return _slow_mult if _slow_timer > 0.0 else 1.0
+	var m: float = _slow_mult if _slow_timer > 0.0 else 1.0
+	return m * Powers.speed_multiplier()   # Swift Mint makes you faster
 
 
 ## Shove trick: slide `distance` pixels (negative = left) over `time` seconds, stumbling, no control.

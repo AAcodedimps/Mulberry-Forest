@@ -56,7 +56,7 @@ func _physics_process(delta: float) -> void:
 		_pop += delta / 0.25
 		modulate.a = clampf(1.0 - _pop, 0.0, 1.0)
 		if _pop >= 1.0:
-			queue_free()
+			_after_pop()
 		return
 	for body in get_overlapping_bodies():
 		if _try_collect(body):
@@ -72,6 +72,12 @@ func _try_collect(_body) -> bool:
 ## Override: draw the item centred on (0, 0).
 func _draw_item() -> void:
 	pass
+
+
+## Called when the pop animation has finished. Normally the pickup is gone for good;
+## pickups that grow back override this.
+func _after_pop() -> void:
+	queue_free()
 
 
 func _on_collected(body) -> void:

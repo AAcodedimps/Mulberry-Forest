@@ -1,13 +1,14 @@
 @tool
 extends Node2D
 ## The old stone gate out of the forest: a tall arch covered in vines, with glowing red runes.
-## Standing at it shows "Press E" (Y on gamepad). Pressing it:
-##  - with fewer mulberries than the basket holds: shows "The gate is sealed..." and nothing else.
-##  - with a full basket: the runes slowly turn from red to green, the vines pull back, and the
-##    gate sends `opening`. The level script then walks the wanderer out and shows the win screen.
+## Walk into it:
+##  - with fewer mulberries than the basket holds: it's a solid wall and shows
+##    "The gate is sealed. It wants 5 mulberries (you have N)."
+##  - with a full basket: the wall vanishes, the runes slowly turn from red to green, the vines
+##    pull back, and the gate sends `opening`. The level script then walks the wanderer out
+##    and shows the win screen.
 ## Place this node on the ground, in the middle of the arch.
 
-@export var interact_distance: float = 110.0  ## How close (pixels, left or right) you must stand to use the gate.
 @export var open_time: float = 2.0            ## Seconds the runes and vines take to change when it opens.
 
 ## Sent when the gate starts to open.
@@ -28,7 +29,7 @@ var _runes: float = 0.0       # 0 = red, 1 = green
 var _vines: float = 1.0       # 1 = covering the gate, 0 = pulled back
 var _deny: float = 0.0        # brief rune flicker when the gate refuses you
 var _opened: bool = false
-var _near: bool = false
+var _touching: bool = false
 var _player = null
 
 
@@ -42,29 +43,23 @@ func _physics_process(delta: float) -> void:
 		_player = get_tree().get_first_node_in_group("player")
 		if _player == null:
 			return
-	var d: Vector2 = _player.global_position - global_position
-	var near: bool = absf(d.x) <= interact_distance and absf(d.y) < 150.0 and not _player.is_locked()
-	if near != _near:
-		_near = near
-		if near:
-			get_tree().call_group("prompt_hint", "show_prompt", self, "Press E")
-		else:
-			get_tree().call_group("prompt_hint", "hide_prompt", self)
-	if near and Input.is_action_just_pressed("interact"):
+	# Walking into the gate: the Threshold area sits just in front of the solid wall.
+	var touching: bool = $Threshold.overlaps_body(_player) and not _player.is_locked()
+	if touching:
 		var need: int = _player.basket_size
 		var have: int = _player.mulberries
-		if have < need:
+		if have >= need:
+			_open()
+		elif not _touching:
 			_deny = 0.6
 			get_tree().call_group("message_hud", "show_message",
 				"The gate is sealed. It wants %d mulberries (you have %d)." % [need, have])
-		else:
-			_open()
+	_touching = touching
 
 
 func _open() -> void:
 	_opened = true
-	_near = false
-	get_tree().call_group("prompt_hint", "hide_prompt", self)
+	$Wall/CollisionShape2D.set_deferred("disabled", true)   # the way through is open
 	var tween := create_tween()
 	tween.tween_property(self, "_runes", 1.0, open_time)
 	tween.parallel().tween_property(self, "_vines", 0.0, open_time * 0.9).set_delay(open_time * 0.1)

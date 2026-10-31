@@ -1,0 +1,10 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/powers/power_pickup.gd" id="1_power"]
+
+[node name="BarkShield" type="Area2D"]
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+script = ExtResource("1_power")
+power_id = "bark_shield"
