@@ -1,0 +1,68 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/ui/stone_counter.gd" id="1_counter"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
+bg_color = Color(0.08, 0.05, 0.14, 0.7)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.75, 0.75, 0.8, 0.6)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="StoneCounter" type="CanvasLayer"]
+layer = 7
+script = ExtResource("1_counter")
+
+[node name="Box" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -72.0
+offset_right = 170.0
+offset_bottom = -20.0
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="Shaker" type="Control" parent="Box"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 150.0
+offset_bottom = 52.0
+mouse_filter = 2
+
+[node name="Bg" type="Panel" parent="Box/Shaker"]
+layout_mode = 0
+offset_right = 140.0
+offset_bottom = 52.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_bg")
+
+[node name="Icon" type="Polygon2D" parent="Box/Shaker"]
+position = Vector2(34, 27)
+color = Color(0.56, 0.56, 0.6, 1)
+polygon = PackedVector2Array(15, 0, 13, 6, 8, 10, 0, 11, -8, 10, -13, 6, -15, 0, -13, -6, -8, -10, 0, -11, 8, -10, 13, -6)
+
+[node name="Shine" type="Polygon2D" parent="Box/Shaker"]
+position = Vector2(29, 22)
+color = Color(0.85, 0.85, 0.9, 1)
+polygon = PackedVector2Array(4, 0, 3, 2, 0, 3, -3, 2, -4, 0, -3, -2, 0, -3, 3, -2)
+
+[node name="Label" type="Label" parent="Box/Shaker"]
+layout_mode = 0
+offset_left = 58.0
+offset_top = 6.0
+offset_right = 136.0
+offset_bottom = 46.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.03, 0.08, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 26
+text = "0/5"
+vertical_alignment = 1
