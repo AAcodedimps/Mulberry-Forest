@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Mulberry Forest"
-run/main_scene="res://scenes/levels/edge_of_the_woods.tscn"
+run/main_scene="res://scenes/levels/mulberry_forest.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 

@@ -1,5 +1,6 @@
 @tool
 extends Node2D
+const OnScreen = preload("res://scripts/on_screen.gd")
 ## Poison flowers: a small patch of purple flowers on the path, with a soft glowing purple haze
 ## floating above them so you can see them coming. A nuisance hurdle: it never kills you and
 ## never makes a ghost.
@@ -71,7 +72,8 @@ func _build_flowers() -> void:
 
 func _physics_process(delta: float) -> void:
 	_t += delta
-	queue_redraw()
+	if OnScreen.near(self):   # only redraw when on or near the screen
+		queue_redraw()
 	if Engine.is_editor_hint():
 		return
 	if _player == null:

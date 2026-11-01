@@ -241,6 +241,8 @@ func _process_climbing(delta: float) -> void:
 		return
 	if is_on_floor() and v > 0.0:
 		_stop_climbing()
+	elif is_on_floor() and v == 0.0 and dir != 0.0:
+		_stop_climbing()   # standing on the ground at the bottom of a vine: walk off it
 
 
 func enter_vine(vine) -> void:

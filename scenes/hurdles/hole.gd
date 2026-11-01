@@ -1,5 +1,6 @@
 @tool
 extends Node2D
+const OnScreen = preload("res://scripts/on_screen.gd")
 const Circles = preload("res://scripts/circles.gd")
 ## A narrow pit in the path, dark inside with two red eyes at the bottom.
 ## Falling in flashes the screen white, puts the wanderer back at the edge they came from
@@ -32,7 +33,8 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_t += delta
-	queue_redraw()
+	if OnScreen.near(self):   # only redraw when on or near the screen
+		queue_redraw()
 
 
 func _on_fall_zone_body_entered(body) -> void:

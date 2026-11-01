@@ -1,5 +1,6 @@
 @tool
 extends Node2D
+const OnScreen = preload("res://scripts/on_screen.gd")
 const Circles = preload("res://scripts/circles.gd")
 ## A collapsing path: old wooden planks over a gap. A deadly hurdle, like the hole.
 ## Step on it and it trembles and cracks for `tremble_time` seconds, then the planks drop away.
@@ -58,7 +59,8 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	_t += delta
-	queue_redraw()
+	if OnScreen.near(self, 1100.0):   # only redraw when on or near the screen
+		queue_redraw()
 	if Engine.is_editor_hint():
 		return
 	delta *= Powers.world_time_scale()   # Moonpetal: trembling and rebuilding take longer

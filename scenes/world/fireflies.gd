@@ -1,5 +1,6 @@
 @tool
 extends Node2D
+const OnScreen = preload("res://scripts/on_screen.gd")
 const Circles = preload("res://scripts/circles.gd")
 ## A swarm of small glowing fireflies that drift and twinkle inside `area` (world coordinates).
 
@@ -28,10 +29,13 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
+	var view: Rect2 = OnScreen.visible_local_rect(self, 60.0)
 	for i in _base.size():
 		var ph: float = _phase[i]
 		var sp: float = _speed[i]
 		var p: Vector2 = _base[i] + Vector2(sin(_t * sp + ph) * 40.0, cos(_t * sp * 0.7 + ph * 1.3) * 22.0)
+		if not view.has_point(p):
+			continue   # off screen: skip it
 		var glow: float = 0.55 + 0.45 * sin(_t * 2.6 + ph * 3.0)
 		Circles.circle(self, p, 9.0, Color(1.0, 0.95, 0.45, 0.07 * glow))
 		Circles.circle(self, p, 4.5, Color(1.0, 0.92, 0.4, 0.25 * glow))

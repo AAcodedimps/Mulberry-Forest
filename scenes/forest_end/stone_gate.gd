@@ -1,5 +1,6 @@
 @tool
 extends Node2D
+const OnScreen = preload("res://scripts/on_screen.gd")
 const Circles = preload("res://scripts/circles.gd")
 ## The old stone gate out of the forest: a tall arch covered in vines, with glowing red runes.
 ## Walk into it:
@@ -37,7 +38,8 @@ var _player = null
 func _physics_process(delta: float) -> void:
 	_t += delta
 	_deny = maxf(0.0, _deny - delta)
-	queue_redraw()
+	if OnScreen.near(self):   # only redraw when on or near the screen
+		queue_redraw()
 	if Engine.is_editor_hint() or _opened:
 		return
 	if _player == null:

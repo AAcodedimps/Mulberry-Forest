@@ -1,5 +1,6 @@
 @tool
 extends Node2D
+const OnScreen = preload("res://scripts/on_screen.gd")
 ## A beehive with a small swarm of bees circling it. A nuisance hurdle: it never kills you and
 ## never makes a ghost.
 ##  - Get within `chase_distance` of the hive and the swarm chases you for `chase_time` seconds,
@@ -10,7 +11,8 @@ extends Node2D
 ##    scatters for `scatter_time` seconds and won't chase), Bark Shield blocks stings (each one
 ##    uses a shield hit), Moonpetal makes the bees fly at half speed, Wild Berries cure all stings.
 ## Place this node ON THE GROUND where the hive should be. `style` picks a hive hanging from a
-## branch (with its little tree) or a hive sitting in a flower bush.
+## branch (with its little tree), a hive sitting in a flower bush, or (for the canopy) a hive hanging
+## from a leafy bough: put that one on the branch you walk along.
 
 # ======================= TUNING =======================
 @export var chase_distance: float = 260.0  ## How close you can get to the hive (pixels) before the swarm chases you.
@@ -24,7 +26,8 @@ extends Node2D
 @export var sting_interval: float = 1.0    ## While the swarm stays on you, it stings again this often (seconds).
 @export var rest_time: float = 2.0         ## After flying home, the swarm rests this long before it can chase again.
 @export var bee_count: int = 7             ## How many bees are drawn in the swarm.
-@export_enum("branch", "bush") var style: String = "branch":  ## Hive hanging from a branch, or sitting in a flower bush.
+@export var chase_height_above: float = -1.0 ## How far ABOVE the hive's base you can be and still get chased (-1 = chase_distance + 150). Lower it so a ground hive ignores players up in the canopy.
+@export_enum("branch", "bush", "hanging") var style: String = "branch":  ## Hive hanging from its own little tree, sitting in a flower bush, or hanging from a leafy bough (for the canopy).
 	set(value):
 		style = value
 		queue_redraw()
@@ -67,7 +70,7 @@ func _ready() -> void:
 
 ## Where the hive hangs, relative to this node (which sits on the ground).
 func _hive_pos() -> Vector2:
-	return Vector2(0, -150) if style == "branch" else Vector2(0, -62)
+	return Vector2(0, -62) if style == "bush" else Vector2(0, -150)
 
 
 func _player_chest() -> Vector2:
@@ -77,7 +80,8 @@ func _player_chest() -> Vector2:
 # ---------------------------------------------------------------- the swarm
 func _physics_process(delta: float) -> void:
 	_t += delta
-	queue_redraw()
+	if OnScreen.near(self, 1100.0):   # only redraw when on or near the screen
+		queue_redraw()
 	if Engine.is_editor_hint():
 		_swarm = _hive_pos()
 		return
@@ -95,7 +99,8 @@ func _physics_process(delta: float) -> void:
 			_swarm = _swarm.move_toward(home, bee_speed * delta)
 			_rest = maxf(0.0, _rest - delta)
 			var d: Vector2 = _player.global_position - global_position
-			if _rest <= 0.0 and not locked and absf(d.x) < chase_distance and d.y > -chase_distance - 150.0 and d.y < 120.0:
+			var above: float = chase_height_above if chase_height_above >= 0.0 else chase_distance + 150.0
+			if _rest <= 0.0 and not locked and absf(d.x) < chase_distance and d.y > -above and d.y < 120.0:
 				_state = State.CHASE
 				_timer = chase_time
 		State.CHASE:
@@ -157,6 +162,8 @@ func _draw() -> void:
 	var h: Vector2 = _hive_pos()
 	if style == "branch":
 		_draw_tree(h)
+	elif style == "hanging":
+		_draw_bough(h)
 	else:
 		_draw_bush(h)
 	_draw_hive(h)
@@ -175,6 +182,17 @@ func _draw_tree(h: Vector2) -> void:
 		Circles.circle(self, p, 22.0, LEAF)
 	for p: Vector2 in [Vector2(trunk_x - 6, -232), Vector2(h.x + 36, h.y - 50)]:
 		Circles.circle(self, p, 12.0, Color("3f8a4a"))
+
+
+func _draw_bough(h: Vector2) -> void:
+	# A leafy bough overhead, with the hive hanging from it on a short stalk
+	draw_line(Vector2(h.x - 110, h.y - 52), Vector2(h.x + 90, h.y - 36), BARK, 9.0)
+	draw_line(Vector2(h.x, h.y - 40), Vector2(h.x, h.y - 22), Color("5a3b1a"), 2.0)
+	for p: Vector2 in [Vector2(h.x - 110, h.y - 60), Vector2(h.x - 70, h.y - 66), Vector2(h.x - 30, h.y - 58),
+			Vector2(h.x + 30, h.y - 52), Vector2(h.x + 70, h.y - 50), Vector2(h.x + 100, h.y - 42)]:
+		Circles.circle(self, p, 20.0, LEAF)
+	for p: Vector2 in [Vector2(h.x - 84, h.y - 74), Vector2(h.x + 52, h.y - 62)]:
+		Circles.circle(self, p, 11.0, Color("3f8a4a"))
 
 
 func _draw_bush(_h: Vector2) -> void:

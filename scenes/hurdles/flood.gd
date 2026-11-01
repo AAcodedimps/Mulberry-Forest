@@ -1,5 +1,6 @@
 @tool
 extends Node2D
+const OnScreen = preload("res://scripts/on_screen.gd")
 const Circles = preload("res://scripts/circles.gd")
 ## A flooding dip: a low stretch of path with a small stream running through it. A nuisance
 ## hurdle: it never kills you and never makes a ghost.
@@ -78,7 +79,8 @@ func _surface_points() -> PackedVector2Array:
 # ---------------------------------------------------------------- the wave cycle
 func _physics_process(delta: float) -> void:
 	_t += delta
-	queue_redraw()
+	if OnScreen.near(self, 1300.0):   # only redraw when on or near the screen
+		queue_redraw()
 	if Engine.is_editor_hint():
 		return
 	delta *= Powers.world_time_scale()   # Moonpetal: everything here runs slower
