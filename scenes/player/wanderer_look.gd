@@ -24,6 +24,7 @@ var speed_ratio: float = 0.0
 var slowed: bool = false   # true while a mischief ghost's Slow trick is active
 var soaked: bool = false   # true while soaked by a flood wave
 var poisoned: bool = false # true while poisoned by poison flowers
+var stings: int = 0        # how many bee stings (0-3): little red sting marks
 var _t: float = 0.0
 
 
@@ -148,6 +149,15 @@ func _draw() -> void:
 			Circles.circle(self, d, 1.6, Color(0.45, 0.72, 1.0, 0.9 * a))
 			draw_colored_polygon(PackedVector2Array([d + Vector2(-1.4, -0.4), d + Vector2(1.4, -0.4), d + Vector2(0, -3.2)]),
 				Color(0.45, 0.72, 1.0, 0.9 * a))
+
+	# Little red sting marks (one per sting): on the cheek, the cloak and the hood
+	var marks: Array[Vector2] = [Vector2(7.5, -32.5), Vector2(-3, -18), Vector2(-2, -42)]
+	for k in mini(stings, marks.size()):
+		var m: Vector2 = marks[k]
+		var throb: float = 0.8 + 0.2 * sin(_t * 8.0 + k)
+		Circles.circle(self, m, 2.6 * throb, Color(1.0, 0.3, 0.3, 0.35))
+		Circles.circle(self, m, 1.5, Color("e0303a"))
+		Circles.circle(self, m + Vector2(-0.4, -0.4), 0.5, Color(1, 0.85, 0.85))
 
 	# Little green bubbles floating up around the wanderer while poisoned
 	if poisoned:
