@@ -33,6 +33,7 @@
 [ext_resource type="PackedScene" path="res://scenes/powers/bark_shield.tscn" id="31_shield"]
 [ext_resource type="PackedScene" path="res://scenes/ui/power_hud.tscn" id="32_powerhud"]
 [ext_resource type="PackedScene" path="res://scenes/powers/regrowing_stone.tscn" id="33_regrow"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/collapsing_path.tscn" id="34_collapse"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wall"]
 size = Vector2(40, 2000)
@@ -124,8 +125,17 @@ decor_seed = 1
 
 [node name="GroundRight" parent="." instance=ExtResource("5_ground")]
 position = Vector2(1276, 600)
-width = 1724.0
+width = 564.0
 decor_seed = 2
+
+[node name="GroundFar" parent="." instance=ExtResource("5_ground")]
+position = Vector2(2140, 600)
+width = 860.0
+decor_seed = 3
+
+[node name="CollapsingPath" parent="." instance=ExtResource("34_collapse")]
+position = Vector2(1840, 600)
+length = 300.0
 
 [node name="Hole" parent="." instance=ExtResource("9_hole")]
 position = Vector2(1228, 600)
