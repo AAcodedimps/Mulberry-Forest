@@ -1,5 +1,6 @@
 @tool
 extends Node2D
+const Circles = preload("res://scripts/circles.gd")
 ## Placeholder for the stone gate at the end of the level: two mossy pillars and an arch.
 ## It has no collision and does nothing yet. This node's position is the base centre.
 
@@ -27,7 +28,7 @@ func _draw() -> void:
 			draw_rect(r.grow(-2.0), STONE_A if i % 2 == 0 else STONE_B)
 			y -= h
 			i += 1
-		draw_circle(Vector2(x0 + pw * 0.5, -4), 14.0, MOSS)
+		Circles.circle(self, Vector2(x0 + pw * 0.5, -4), 14.0, MOSS)
 	# Arch made of wedge stones
 	var c := Vector2(0, -pillar_height)
 	var n: int = 7
@@ -44,10 +45,10 @@ func _draw() -> void:
 	draw_arc(c, inner_radius, PI, TAU, 32, MORTAR, 2.0)
 	# Faint glowing rune on the keystone
 	var key := c + Vector2(0, -(inner_radius + outer_radius) * 0.5)
-	draw_circle(key, 10.0, Color(0.5, 1.0, 0.9, 0.15))
+	Circles.circle(self, key, 10.0, Color(0.5, 1.0, 0.9, 0.15))
 	draw_line(key + Vector2(0, -6), key + Vector2(0, 6), Color("8ff5de"), 2.0)
 	draw_line(key + Vector2(-4, -2), key + Vector2(4, 2), Color("8ff5de"), 2.0)
 	# Moss draped over the top
 	for k in 6:
 		var a: float = PI * 1.25 + k * 0.18
-		draw_circle(c + Vector2(cos(a), sin(a)) * outer_radius, 8.0 - k * 0.6, MOSS)
+		Circles.circle(self, c + Vector2(cos(a), sin(a)) * outer_radius, 8.0 - k * 0.6, MOSS)

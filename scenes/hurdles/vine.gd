@@ -1,5 +1,7 @@
 @tool
 extends Node2D
+const OnScreen = preload("res://scripts/on_screen.gd")
+const Circles = preload("res://scripts/circles.gd")
 ## A climbable vine hanging down from its top point (this node's position) by `length` pixels.
 ## It tells the wanderer when they start or stop touching it; the player script does the climbing.
 
@@ -42,7 +44,8 @@ func _on_body_exited(body) -> void:
 
 func _process(delta: float) -> void:
 	_t += delta
-	queue_redraw()
+	if OnScreen.near(self):   # only redraw when on or near the screen
+		queue_redraw()
 
 
 func _sway(y: float) -> float:
@@ -73,6 +76,6 @@ func _draw() -> void:
 		y2 += 16.0
 	# A small glowing flower at the tip
 	var tip := Vector2(_sway(length), length)
-	draw_circle(tip, 7.0, Color(0.8, 0.5, 1.0, 0.2))
-	draw_circle(tip, 3.5, Color("d08cff"))
-	draw_circle(tip, 1.4, Color("fff2a8"))
+	Circles.circle(self, tip, 7.0, Color(0.8, 0.5, 1.0, 0.2))
+	Circles.circle(self, tip, 3.5, Color("d08cff"))
+	Circles.circle(self, tip, 1.4, Color("fff2a8"))

@@ -1,4 +1,5 @@
 extends Node2D
+const Circles = preload("res://scripts/circles.gd")
 ## A stone in flight. Every physics frame it falls a little (gravity) and moves along its arc.
 ## It asks every node in the "stone_targets" group whether the stone touches it; the first
 ## one that says yes gets `on_stone_hit(stone)` and the stone is used up. If it hits the
@@ -52,16 +53,16 @@ func _physics_process(delta: float) -> void:
 
 func _draw() -> void:
 	if _dust < 0.0:
-		draw_circle(Vector2.ZERO, 7.0, Color("6b6b73"))
-		draw_circle(Vector2(-0.5, -0.5), 6.0, Color("8e8e96"))
-		draw_circle(Vector2(-2.0, -2.0), 2.2, Color("cfcfd6"))
+		Circles.circle(self, Vector2.ZERO, 7.0, Color("6b6b73"))
+		Circles.circle(self, Vector2(-0.5, -0.5), 6.0, Color("8e8e96"))
+		Circles.circle(self, Vector2(-2.0, -2.0), 2.2, Color("cfcfd6"))
 		return
 	# Puff of dust and a few chips
 	for k in 7:
 		var a: float = PI + PI * k / 6.0
 		var r: float = 4.0 + _dust * 22.0
 		var p := Vector2(cos(a) * r, sin(a) * r * 0.6 - _dust * 6.0)
-		draw_circle(p, 6.0 * (1.0 - _dust * 0.5), Color(0.72, 0.66, 0.58, 0.55 * (1.0 - _dust)))
+		Circles.circle(self, p, 6.0 * (1.0 - _dust * 0.5), Color(0.72, 0.66, 0.58, 0.55 * (1.0 - _dust)))
 	for k in 3:
 		var p2 := Vector2((k - 1) * 10.0 * _dust * 1.5, -12.0 * _dust + 30.0 * _dust * _dust)
-		draw_circle(p2, 2.0, Color(0.55, 0.55, 0.6, 1.0 - _dust))
+		Circles.circle(self, p2, 2.0, Color(0.55, 0.55, 0.6, 1.0 - _dust))

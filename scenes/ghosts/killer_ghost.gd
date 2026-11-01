@@ -1,4 +1,5 @@
 extends Node2D
+const Circles = preload("res://scripts/circles.gd")
 ## A killer ghost: a see-through red sheet ghost with angry eyes and a silver dagger.
 ## It rises at the start of the level and floats along the wanderer's recorded path at a
 ## steady speed, straight over holes, over trunks and up vines. If it reaches the
@@ -204,7 +205,7 @@ func _draw() -> void:
 		Vector2(size_scale * _facing * flat.x, size_scale * flat.y))
 
 	# Faint red aura
-	draw_circle(Vector2(0, -26), 24.0, Color(1, 0.2, 0.2, 0.07))
+	Circles.circle(self, Vector2(0, -26), 24.0, Color(1, 0.2, 0.2, 0.07))
 
 	# Sheet body: round head, wavy hem
 	var body := PackedVector2Array()
@@ -233,7 +234,7 @@ func _draw() -> void:
 				var a: float = TAU * i / 12.0
 				pts.append(Vector2(ex + cos(a) * 3.0, -35.5 + sin(a) * 2.4))
 			draw_colored_polygon(pts, EYE)
-			draw_circle(Vector2(ex + 0.6, -35.5), 1.1, PUPIL)
+			Circles.circle(self, Vector2(ex + 0.6, -35.5), 1.1, PUPIL)
 		draw_line(Vector2(-0.5, -41.5), Vector2(6, -38.5), EYE, 1.8)   # angry brows
 		draw_line(Vector2(13.5, -41.5), Vector2(7, -38.5), EYE, 1.8)
 	draw_polyline(PackedVector2Array([Vector2(2, -28), Vector2(4, -30), Vector2(6, -28),
@@ -242,7 +243,7 @@ func _draw() -> void:
 	# Little arm holding a silver dagger (thrust forward when stabbing)
 	var hand := Vector2(21, -20) if _stabbing else Vector2(14, -19)
 	var angle: float = 0.0 if _stabbing else -0.7
-	draw_circle(hand, 4.0, BODY)
+	Circles.circle(self, hand, 4.0, BODY)
 	var grip := Transform2D(angle, hand)
 	draw_colored_polygon(grip * PackedVector2Array([Vector2(-6, -1.4), Vector2(0, -1.4), Vector2(0, 1.4), Vector2(-6, 1.4)]), HANDLE)
 	draw_colored_polygon(grip * PackedVector2Array([Vector2(0, -2.6), Vector2(14, -0.8), Vector2(17, 0), Vector2(14, 0.8), Vector2(0, 2.6)]), BLADE)

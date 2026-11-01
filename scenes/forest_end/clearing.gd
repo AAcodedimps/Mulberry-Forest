@@ -1,5 +1,7 @@
 @tool
 extends Node2D
+const OnScreen = preload("res://scripts/on_screen.gd")
+const Circles = preload("res://scripts/circles.gd")
 ## The small clearing at the end of the forest: soft moonlight falling through a gap in the
 ## trees, a pale glow on the moss and a scatter of little white flowers. Only decoration.
 ## This node's position is the left edge of the clearing, on the ground.
@@ -14,7 +16,8 @@ var _t: float = 0.0
 
 func _process(delta: float) -> void:
 	_t += delta
-	queue_redraw()
+	if OnScreen.near(self, 2000.0):   # only redraw when on or near the screen
+		queue_redraw()
 
 
 func _draw() -> void:
@@ -40,5 +43,5 @@ func _draw() -> void:
 		draw_line(p, p + Vector2(0, 6), Color("4f9a3c"), 1.2)
 		for j in 5:
 			var a2: float = TAU * j / 5.0 + i
-			draw_circle(p + Vector2(cos(a2), sin(a2)) * 2.4, 1.6, Color(0.95, 0.97, 1.0, 0.9))
-		draw_circle(p, 1.2, Color("ffe27a"))
+			Circles.circle(self, p + Vector2(cos(a2), sin(a2)) * 2.4, 1.6, Color(0.95, 0.97, 1.0, 0.9))
+		Circles.circle(self, p, 1.2, Color("ffe27a"))

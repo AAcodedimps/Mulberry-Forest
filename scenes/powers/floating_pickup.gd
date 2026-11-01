@@ -1,5 +1,7 @@
 @tool
 extends Area2D
+const OnScreen = preload("res://scripts/on_screen.gd")
+const Circles = preload("res://scripts/circles.gd")
 ## Shared setup for every collectible power (stones now; Swift Mint, Strength Fig, Moonpetal,
 ## Bark Shield and Wild Berries later). The item floats at chest height, bobs gently, glows
 ## and sparkles. It is collected the moment ANY part of the wanderer's body touches it
@@ -49,7 +51,8 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	_t += delta
-	queue_redraw()
+	if OnScreen.near(self):   # only redraw when on or near the screen
+		queue_redraw()
 	if Engine.is_editor_hint():
 		return
 	if _pop >= 0.0:
@@ -103,8 +106,8 @@ func _draw() -> void:
 		draw_colored_polygon(shadow, Color(0, 0, 0, 0.18))
 	# Soft glow
 	var g := glow_color
-	draw_circle(c, 28.0, Color(g.r, g.g, g.b, 0.08 * pulse))
-	draw_circle(c, 19.0, Color(g.r, g.g, g.b, 0.16 * pulse))
+	Circles.circle(self, c, 28.0, Color(g.r, g.g, g.b, 0.08 * pulse))
+	Circles.circle(self, c, 19.0, Color(g.r, g.g, g.b, 0.16 * pulse))
 	# Twinkling sparkles circling the item
 	for k in 3:
 		var a2: float = _t * 1.6 + k * TAU / 3.0
@@ -122,7 +125,7 @@ func _draw() -> void:
 		for k in 8:
 			var a3: float = k * TAU / 8.0
 			var p: Vector2 = c + Vector2(cos(a3), sin(a3)) * (8.0 + _pop * 26.0)
-			draw_circle(p, 2.5 * (1.0 - _pop * 0.6), Color(g.r, g.g, g.b, 1.0))
+			Circles.circle(self, p, 2.5 * (1.0 - _pop * 0.6), Color(g.r, g.g, g.b, 1.0))
 
 
 # ---------------------------------------------------------------- pop sound

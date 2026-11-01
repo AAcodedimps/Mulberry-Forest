@@ -1,5 +1,7 @@
 @tool
 extends Node2D
+const OnScreen = preload("res://scripts/on_screen.gd")
+const Circles = preload("res://scripts/circles.gd")
 ## The great mulberry tree in the clearing at the end of the forest.
 ## - A quick tap of F (X on gamepad) under it makes the wanderer throw one of their carried
 ##   stones straight up: the tree shakes and one ripe mulberry drops into the basket.
@@ -81,7 +83,8 @@ func berries_left() -> int:
 # ---------------------------------------------------------------- every frame
 func _physics_process(delta: float) -> void:
 	_t += delta
-	queue_redraw()
+	if OnScreen.near(self):   # only redraw when on or near the screen
+		queue_redraw()
 	if Engine.is_editor_hint():
 		return
 	if _player == null:
@@ -213,7 +216,7 @@ func _draw() -> void:
 		draw_line(b[0], b[1] + sway * 0.5 + jolt * 0.5, TRUNK, 13.0)
 	# Leafy top (shakes when hit)
 	for leaf: Array in _leaves:
-		draw_circle(leaf[0] + sway + jolt, leaf[1], leaf[2])
+		Circles.circle(self, leaf[0] + sway + jolt, leaf[1], leaf[2])
 	# Ripe mulberries, swaying on their stems
 	for i in _slots.size():
 		if _present[i]:
@@ -224,8 +227,8 @@ func _draw() -> void:
 	if _up >= 0.0:
 		var e: float = 1.0 - pow(1.0 - _up, 2.0)
 		var sp: Vector2 = _up_from.lerp(CANOPY_CENTER + Vector2(0, 40), e)
-		draw_circle(sp, 6.0, STONE)
-		draw_circle(sp + Vector2(-2, -2), 2.0, Color("d0d0d8"))
+		Circles.circle(self, sp, 6.0, STONE)
+		Circles.circle(self, sp + Vector2(-2, -2), 2.0, Color("d0d0d8"))
 	# Berries dropping into the basket / flying back
 	for f in _flying:
 		_berry(_flying_pos(f))
@@ -233,11 +236,11 @@ func _draw() -> void:
 
 func _berry(p: Vector2) -> void:
 	var glow: float = 0.6 + 0.4 * sin(_t * 2.5 + p.x)
-	draw_circle(p, 13.0, Color(0.7, 0.3, 1.0, 0.10 * glow))
-	draw_circle(p, 8.0, Color(0.7, 0.3, 1.0, 0.18 * glow))
+	Circles.circle(self, p, 13.0, Color(0.7, 0.3, 1.0, 0.10 * glow))
+	Circles.circle(self, p, 8.0, Color(0.7, 0.3, 1.0, 0.18 * glow))
 	for o: Vector2 in [Vector2(-2.5, -2), Vector2(2.5, -2), Vector2(0, 1.5), Vector2(0, -4.5)]:
-		draw_circle(p + o, 3.4, BERRY)
-	draw_circle(p + Vector2(-1.8, -3.0), 1.3, BERRY_HI)
+		Circles.circle(self, p + o, 3.4, BERRY)
+	Circles.circle(self, p + Vector2(-1.8, -3.0), 1.3, BERRY_HI)
 
 
 func _ellipse(c: Vector2, r: Vector2, col: Color) -> void:

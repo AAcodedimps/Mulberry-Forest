@@ -1,4 +1,5 @@
 extends Node2D
+const Circles = preload("res://scripts/circles.gd")
 ## The wanderer's stone pouch and throwing arm (a child of the Player).
 ## Hold F (X on gamepad) to aim: a dotted arc shows where the stone will fly, and W/S
 ## (or the right stick) tilt the arc up and down. Release F to throw in the direction the
@@ -146,13 +147,13 @@ func _draw() -> void:
 		return
 	# Stone held in the hand
 	var hand: Vector2 = to_local(_launch_point())
-	draw_circle(hand, 6.0, Color("8e8e96"))
-	draw_circle(hand + Vector2(-1.5, -1.5), 2.0, Color("cfcfd6"))
+	Circles.circle(self, hand, 6.0, Color("8e8e96"))
+	Circles.circle(self, hand + Vector2(-1.5, -1.5), 2.0, Color("cfcfd6"))
 	# Dotted arc, fading out toward the end
 	var n: int = _preview.size()
 	for i in range(1, n, 2):
 		var a: float = 1.0 - float(i) / float(n) * 0.6
-		draw_circle(to_local(_preview[i]), 3.0, Color(1.0, 0.97, 0.85, a))
+		Circles.circle(self, to_local(_preview[i]), 3.0, Color(1.0, 0.97, 0.85, a))
 	if _preview_lands:
 		var land: Vector2 = to_local(_preview[n - 1])
 		draw_arc(land, 9.0, 0.0, TAU, 20, Color(1.0, 0.95, 0.7, 0.9), 2.0)

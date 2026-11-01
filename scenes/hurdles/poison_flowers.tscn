@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/hurdles/poison_flowers.gd" id="1_poison"]
+
+[node name="PoisonFlowers" type="Node2D"]
+script = ExtResource("1_poison")

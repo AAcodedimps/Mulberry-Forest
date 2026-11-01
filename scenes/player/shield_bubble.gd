@@ -1,4 +1,5 @@
 extends Node2D
+const Circles = preload("res://scripts/circles.gd")
 ## Draws the Bark Shield's green bubble around the wanderer while it's up. Every blocked hit
 ## adds a crack (and a quick flash); when the shield runs out it pops.
 
@@ -36,7 +37,7 @@ func _draw() -> void:
 	if Powers.has_shield():
 		var r: float = 66.0 + sin(_t * 3.0) * 2.0
 		var fl: float = _flash / 0.3
-		draw_circle(CENTER, r, Color(0.4, 1.0, 0.5, 0.10 + 0.15 * fl))
+		Circles.circle(self, CENTER, r, Color(0.4, 1.0, 0.5, 0.10 + 0.15 * fl))
 		draw_arc(CENTER, r, 0.0, TAU, 56, Color(0.55, 1.0, 0.6, 0.75 + 0.25 * fl), 3.0)
 		draw_arc(CENTER, r - 6.0, _t, _t + 1.2, 16, Color(0.85, 1.0, 0.85, 0.5), 2.0)
 		# one crack per blocked hit

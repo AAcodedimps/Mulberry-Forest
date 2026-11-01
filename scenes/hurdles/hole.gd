@@ -1,5 +1,7 @@
 @tool
 extends Node2D
+const OnScreen = preload("res://scripts/on_screen.gd")
+const Circles = preload("res://scripts/circles.gd")
 ## A narrow pit in the path, dark inside with two red eyes at the bottom.
 ## Falling in flashes the screen white, puts the wanderer back at the edge they came from
 ## and sends GameEvents.deadly_mistake. While the wanderer blinks, an invisible lid covers the hole.
@@ -31,7 +33,8 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_t += delta
-	queue_redraw()
+	if OnScreen.near(self):   # only redraw when on or near the screen
+		queue_redraw()
 
 
 func _on_fall_zone_body_entered(body) -> void:
@@ -70,15 +73,15 @@ func _draw() -> void:
 	var pulse: float = 0.75 + 0.25 * sin(_t * 2.0)
 	for ex: float in [-8.0, 8.0]:
 		var c := Vector2(ex, 96)
-		draw_circle(c, 11.0, Color(1, 0.1, 0.1, 0.08 * pulse))
-		draw_circle(c, 6.0, Color(1, 0.15, 0.1, 0.22 * pulse))
+		Circles.circle(self, c, 11.0, Color(1, 0.1, 0.1, 0.08 * pulse))
+		Circles.circle(self, c, 6.0, Color(1, 0.15, 0.1, 0.22 * pulse))
 		var pts := PackedVector2Array()
 		for i in 14:
 			var a: float = TAU * i / 14.0
 			pts.append(c + Vector2(cos(a) * 3.2, sin(a) * 2.4 * open))
 		draw_colored_polygon(pts, Color("ff3b2f"))
-		draw_circle(c, 0.9 * open, Color("ffd8c8"))
+		Circles.circle(self, c, 0.9 * open, Color("ffd8c8"))
 	# Mossy lips hanging over the edge
 	for i in 4:
-		draw_circle(Vector2(-hw + 2 + i * 3, 3 + i * 1.5), 5.0 - i, Color("3f8a3a"))
-		draw_circle(Vector2(hw - 2 - i * 3, 3 + i * 1.5), 5.0 - i, Color("3f8a3a"))
+		Circles.circle(self, Vector2(-hw + 2 + i * 3, 3 + i * 1.5), 5.0 - i, Color("3f8a3a"))
+		Circles.circle(self, Vector2(hw - 2 - i * 3, 3 + i * 1.5), 5.0 - i, Color("3f8a3a"))

@@ -1,4 +1,5 @@
 extends Control
+const Circles = preload("res://scripts/circles.gd")
 ## Bottom-right corner: one icon for every power that's switched on, with a ring around it that
 ## empties as its 10 seconds run out. Icons flash during their last 2 seconds. Bark Shield also
 ## shows little dots for the hits it has left.
@@ -26,7 +27,7 @@ func _draw() -> void:
 		var flashing: bool = left <= 2.0 and fmod(_t, 0.3) < 0.15
 		var alpha: float = 0.35 if flashing else 1.0
 		var glow: Color = PowerArt.glow_color(id)
-		draw_circle(c, SIZE, Color(0.08, 0.05, 0.14, 0.75 * alpha))
+		Circles.circle(self, c, SIZE, Color(0.08, 0.05, 0.14, 0.75 * alpha))
 		draw_arc(c, SIZE + 4.0, 0.0, TAU, 48, Color(1, 1, 1, 0.15 * alpha), 4.0)
 		draw_arc(c, SIZE + 4.0, -PI / 2.0, -PI / 2.0 + TAU * frac, 48, Color(glow.r, glow.g, glow.b, alpha), 4.0)
 		if not flashing:
@@ -34,5 +35,5 @@ func _draw() -> void:
 		if id == Powers.BARK_SHIELD:
 			for h in Powers.shield_hits:
 				var on: bool = h < Powers.shield_hits_left
-				draw_circle(c + Vector2((h - (Powers.shield_hits - 1) * 0.5) * 11.0, SIZE + 14.0), 4.0,
+				Circles.circle(self, c + Vector2((h - (Powers.shield_hits - 1) * 0.5) * 11.0, SIZE + 14.0), 4.0,
 					Color(0.5, 1.0, 0.55, alpha) if on else Color(0.3, 0.3, 0.35, 0.6 * alpha))

@@ -1,0 +1,573 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/levels/level.gd" id="1_level"]
+[ext_resource type="Script" path="res://scenes/levels/zone.gd" id="2_zone"]
+[ext_resource type="Script" path="res://scenes/world/dusk_sky.gd" id="3_sky"]
+[ext_resource type="Script" path="res://scenes/world/forest_layer.gd" id="4_forest"]
+[ext_resource type="Script" path="res://scenes/world/fireflies.gd" id="5_fireflies"]
+[ext_resource type="PackedScene" path="res://scenes/world/ground_segment.tscn" id="6_ground"]
+[ext_resource type="PackedScene" path="res://scenes/world/branch_platform.tscn" id="7_branch"]
+[ext_resource type="PackedScene" path="res://scenes/world/sign.tscn" id="8_sign"]
+[ext_resource type="PackedScene" path="res://scenes/forest_end/mulberry_tree.tscn" id="9_tree"]
+[ext_resource type="PackedScene" path="res://scenes/forest_end/stone_gate.tscn" id="10_gate"]
+[ext_resource type="Script" path="res://scenes/forest_end/clearing.gd" id="11_clearing"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/tree_trunk.tscn" id="12_trunk"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/hole.tscn" id="13_hole"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/vine.tscn" id="14_vine"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/collapsing_path.tscn" id="15_collapse"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/flood.tscn" id="16_flood"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/poison_flowers.tscn" id="17_poison"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/beehive.tscn" id="18_hive"]
+[ext_resource type="PackedScene" path="res://scenes/powers/stone_pickup.tscn" id="19_stone"]
+[ext_resource type="PackedScene" path="res://scenes/powers/regrowing_stone.tscn" id="20_regrow"]
+[ext_resource type="PackedScene" path="res://scenes/powers/swift_mint.tscn" id="21_mint"]
+[ext_resource type="PackedScene" path="res://scenes/powers/strength_fig.tscn" id="22_fig"]
+[ext_resource type="PackedScene" path="res://scenes/powers/moonpetal.tscn" id="23_moonpetal"]
+[ext_resource type="PackedScene" path="res://scenes/powers/bark_shield.tscn" id="24_shield"]
+[ext_resource type="PackedScene" path="res://scenes/powers/wild_berries.tscn" id="25_berries"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="26_player"]
+[ext_resource type="PackedScene" path="res://scenes/ui/screen_flash.tscn" id="27_flash"]
+[ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="28_pause"]
+[ext_resource type="PackedScene" path="res://scenes/ui/controls_hint.tscn" id="29_hint"]
+[ext_resource type="Script" path="res://scenes/ghosts/path_recorder.gd" id="30_recorder"]
+[ext_resource type="Script" path="res://scenes/ghosts/ghost_manager.gd" id="31_manager"]
+[ext_resource type="PackedScene" path="res://scenes/ghosts/killer_ghost.tscn" id="32_kghost"]
+[ext_resource type="PackedScene" path="res://scenes/ghosts/mischief_ghost.tscn" id="33_mghost"]
+[ext_resource type="PackedScene" path="res://scenes/ui/ghost_hud.tscn" id="34_hud"]
+[ext_resource type="PackedScene" path="res://scenes/ui/game_over.tscn" id="35_over"]
+[ext_resource type="PackedScene" path="res://scenes/ui/stone_counter.tscn" id="36_stonecount"]
+[ext_resource type="PackedScene" path="res://scenes/ui/prompt_hint.tscn" id="37_prompt"]
+[ext_resource type="PackedScene" path="res://scenes/ui/basket_counter.tscn" id="38_basket"]
+[ext_resource type="PackedScene" path="res://scenes/ui/win_screen.tscn" id="39_win"]
+[ext_resource type="PackedScene" path="res://scenes/ui/power_hud.tscn" id="40_powerhud"]
+[ext_resource type="PackedScene" path="res://scenes/ui/zone_banner.tscn" id="41_banner"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall"]
+size = Vector2(40, 2000)
+
+[node name="MulberryForest" type="Node2D"]
+script = ExtResource("1_level")
+level_width = 11000
+gate_path = NodePath("Zone5/StoneGate")
+
+[node name="SkyLayer" type="CanvasLayer" parent="."]
+layer = -10
+
+[node name="DuskSky" type="Control" parent="SkyLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3_sky")
+
+[node name="FarTrees" type="Parallax2D" parent="."]
+z_index = -5
+scroll_scale = Vector2(0.2, 1)
+
+[node name="Layer" type="Node2D" parent="FarTrees"]
+script = ExtResource("4_forest")
+tree_color = Color(0.227, 0.498, 0.525, 1)
+shade_color = Color(0.173, 0.4, 0.439, 1)
+hill_y = 470.0
+tree_count = 46
+min_height = 200.0
+max_height = 340.0
+layer_seed = 5
+x_from = -1200.0
+x_to = 3300.0
+
+[node name="MidTrees" type="Parallax2D" parent="."]
+z_index = -5
+scroll_scale = Vector2(0.45, 1)
+
+[node name="Layer" type="Node2D" parent="MidTrees"]
+script = ExtResource("4_forest")
+tree_color = Color(0.137, 0.42, 0.373, 1)
+shade_color = Color(0.102, 0.314, 0.286, 1)
+hill_y = 525.0
+tree_count = 64
+min_height = 180.0
+max_height = 300.0
+layer_seed = 9
+x_from = -1200.0
+x_to = 5700.0
+
+[node name="NearTrees" type="Parallax2D" parent="."]
+z_index = -5
+scroll_scale = Vector2(0.7, 1)
+
+[node name="Layer" type="Node2D" parent="NearTrees"]
+script = ExtResource("4_forest")
+tree_color = Color(0.09, 0.282, 0.227, 1)
+shade_color = Color(0.063, 0.204, 0.157, 1)
+hill_y = 575.0
+tree_count = 66
+min_height = 240.0
+max_height = 420.0
+layer_seed = 13
+x_from = -1200.0
+x_to = 8500.0
+
+[node name="FirefliesBack" type="Node2D" parent="."]
+script = ExtResource("5_fireflies")
+count = 44
+area = Rect2(0, 240, 11000, 300)
+swarm_seed = 3
+
+[node name="Zone1" type="Node2D" parent="."]
+position = Vector2(0, 600)
+script = ExtResource("2_zone")
+zone_name = "Edge of the Woods"
+width = 1830.0
+backdrop = "none"
+canopy_trunks = false
+
+[node name="Ground1" parent="Zone1" instance=ExtResource("6_ground")]
+position = Vector2(0, 0.0)
+width = 1290
+decor_seed = 1
+shade_left_edge = true
+shade_right_edge = true
+
+[node name="Ground2" parent="Zone1" instance=ExtResource("6_ground")]
+position = Vector2(1370, 0.0)
+width = 460
+decor_seed = 2
+shade_left_edge = true
+shade_right_edge = false
+
+[node name="Hole" parent="Zone1" instance=ExtResource("13_hole")]
+position = Vector2(1330, 0.0)
+hole_width = 80.0
+
+[node name="Trunk" parent="Zone1" instance=ExtResource("12_trunk")]
+position = Vector2(800, 0.0)
+
+[node name="SignMove" parent="Zone1" instance=ExtResource("8_sign")]
+position = Vector2(190, 0.0)
+icon = "move"
+
+[node name="SignThrow" parent="Zone1" instance=ExtResource("8_sign")]
+position = Vector2(480, 0.0)
+icon = "throw"
+
+[node name="SignJump" parent="Zone1" instance=ExtResource("8_sign")]
+position = Vector2(600, 0.0)
+icon = "jump"
+
+[node name="SignHole" parent="Zone1" instance=ExtResource("8_sign")]
+position = Vector2(1130, 0.0)
+icon = "hole"
+
+[node name="Stone1" parent="Zone1" instance=ExtResource("19_stone")]
+position = Vector2(400, 0.0)
+
+[node name="Stone2" parent="Zone1" instance=ExtResource("19_stone")]
+position = Vector2(1000, 0.0)
+
+[node name="Stone3" parent="Zone1" instance=ExtResource("19_stone")]
+position = Vector2(1560, 0.0)
+
+[node name="SwiftMint" parent="Zone1" instance=ExtResource("21_mint")]
+position = Vector2(1690, 0.0)
+
+[node name="Zone2" type="Node2D" parent="."]
+position = Vector2(1830, 600)
+script = ExtResource("2_zone")
+zone_name = "Hollow Fork"
+width = 2290.0
+backdrop = "hollow"
+canopy_trunks = true
+
+[node name="Ground3" parent="Zone2" instance=ExtResource("6_ground")]
+position = Vector2(0, 0.0)
+width = 422
+decor_seed = 3
+shade_left_edge = false
+shade_right_edge = true
+
+[node name="Ground4" parent="Zone2" instance=ExtResource("6_ground")]
+position = Vector2(518, 0.0)
+width = 297
+decor_seed = 4
+shade_left_edge = true
+shade_right_edge = true
+
+[node name="Ground5" parent="Zone2" instance=ExtResource("6_ground")]
+position = Vector2(925, 0.0)
+width = 1365
+decor_seed = 5
+shade_left_edge = true
+shade_right_edge = false
+
+[node name="Hole1" parent="Zone2" instance=ExtResource("13_hole")]
+position = Vector2(470, 0.0)
+hole_width = 96.0
+
+[node name="Hole2" parent="Zone2" instance=ExtResource("13_hole")]
+position = Vector2(870, 0.0)
+hole_width = 110.0
+
+[node name="CanopyA" parent="Zone2" instance=ExtResource("7_branch")]
+position = Vector2(370, -270.0)
+width = 400.0
+
+[node name="CanopyB" parent="Zone2" instance=ExtResource("7_branch")]
+position = Vector2(840, -270.0)
+width = 300.0
+
+[node name="CanopyC" parent="Zone2" instance=ExtResource("7_branch")]
+position = Vector2(1290, -270.0)
+width = 360.0
+
+[node name="CanopyD" parent="Zone2" instance=ExtResource("7_branch")]
+position = Vector2(1765, -270.0)
+width = 330.0
+
+[node name="CanopyE" parent="Zone2" instance=ExtResource("7_branch")]
+position = Vector2(2260, -270.0)
+width = 420.0
+
+[node name="VineA" parent="Zone2" instance=ExtResource("14_vine")]
+position = Vector2(230, -276.0)
+length = 246.0
+
+[node name="VineB" parent="Zone2" instance=ExtResource("14_vine")]
+position = Vector2(1160, -276.0)
+length = 246.0
+
+[node name="SignSplit" parent="Zone2" instance=ExtResource("8_sign")]
+position = Vector2(110, 0.0)
+icon = "split"
+
+[node name="SignHole1" parent="Zone2" instance=ExtResource("8_sign")]
+position = Vector2(300, 0.0)
+icon = "hole"
+
+[node name="SignHole2" parent="Zone2" instance=ExtResource("8_sign")]
+position = Vector2(600, 0.0)
+icon = "hole"
+
+[node name="SignClimbB" parent="Zone2" instance=ExtResource("8_sign")]
+position = Vector2(1100, 0.0)
+icon = "climb"
+
+[node name="SignPoison" parent="Zone2" instance=ExtResource("8_sign")]
+position = Vector2(1190, 0.0)
+icon = "poison"
+
+[node name="PoisonFlowers" parent="Zone2" instance=ExtResource("17_poison")]
+position = Vector2(1360, 0.0)
+patch_width = 100.0
+
+[node name="GroundStone1" parent="Zone2" instance=ExtResource("19_stone")]
+position = Vector2(710, 0.0)
+
+[node name="CanopyStone1" parent="Zone2" instance=ExtResource("19_stone")]
+position = Vector2(840, -270.0)
+
+[node name="WildBerries" parent="Zone2" instance=ExtResource("25_berries")]
+position = Vector2(1650, 0.0)
+
+[node name="CanopyStone2" parent="Zone2" instance=ExtResource("19_stone")]
+position = Vector2(1770, -270.0)
+
+[node name="GroundStone2" parent="Zone2" instance=ExtResource("19_stone")]
+position = Vector2(1820, 0.0)
+
+[node name="BarkShield" parent="Zone2" instance=ExtResource("24_shield")]
+position = Vector2(2050, 0.0)
+
+[node name="Zone3" type="Node2D" parent="."]
+position = Vector2(4120, 600)
+script = ExtResource("2_zone")
+zone_name = "Bee Meadow"
+width = 2290.0
+backdrop = "meadow"
+canopy_trunks = true
+canopy_name = "Hive Branches"
+
+[node name="Ground6" parent="Zone3" instance=ExtResource("6_ground")]
+position = Vector2(0, 0.0)
+width = 2290
+decor_seed = 6
+shade_left_edge = false
+shade_right_edge = false
+
+[node name="CanopyF" parent="Zone3" instance=ExtResource("7_branch")]
+position = Vector2(490, -270.0)
+width = 380.0
+
+[node name="CanopyG" parent="Zone3" instance=ExtResource("7_branch")]
+position = Vector2(1015, -270.0)
+width = 430.0
+
+[node name="MoonpetalBranch" parent="Zone3" instance=ExtResource("7_branch")]
+position = Vector2(1440, -425.0)
+width = 90.0
+
+[node name="CanopyH" parent="Zone3" instance=ExtResource("7_branch")]
+position = Vector2(1565, -270.0)
+width = 430.0
+
+[node name="CanopyI" parent="Zone3" instance=ExtResource("7_branch")]
+position = Vector2(2190, -270.0)
+width = 580.0
+
+[node name="VineMiddle" parent="Zone3" instance=ExtResource("14_vine")]
+position = Vector2(1130, -276.0)
+length = 246.0
+
+[node name="Trunk" parent="Zone3" instance=ExtResource("12_trunk")]
+position = Vector2(1940, 0.0)
+
+[node name="SignBees" parent="Zone3" instance=ExtResource("8_sign")]
+position = Vector2(200, 0.0)
+icon = "bees"
+
+[node name="CanopySignBees" parent="Zone3" instance=ExtResource("8_sign")]
+position = Vector2(350, -270.0)
+icon = "bees"
+
+[node name="SignClimb" parent="Zone3" instance=ExtResource("8_sign")]
+position = Vector2(1050, 0.0)
+icon = "climb"
+
+[node name="CanopySignClimbDown" parent="Zone3" instance=ExtResource("8_sign")]
+position = Vector2(1070, -270.0)
+icon = "climb_down"
+
+[node name="SignPoison" parent="Zone3" instance=ExtResource("8_sign")]
+position = Vector2(1280, 0.0)
+icon = "poison"
+
+[node name="SignTrunk" parent="Zone3" instance=ExtResource("8_sign")]
+position = Vector2(1760, 0.0)
+icon = "trunk"
+
+[node name="CanopySignDown" parent="Zone3" instance=ExtResource("8_sign")]
+position = Vector2(2350, -270.0)
+icon = "climb_down"
+
+[node name="PoisonFlowers" parent="Zone3" instance=ExtResource("17_poison")]
+position = Vector2(1440, 0.0)
+patch_width = 120.0
+
+[node name="HangingHiveA" parent="Zone3" instance=ExtResource("18_hive")]
+position = Vector2(560, -270.0)
+style = "hanging"
+
+[node name="BushHive" parent="Zone3" instance=ExtResource("18_hive")]
+position = Vector2(600, 0.0)
+style = "bush"
+chase_height_above = 150.0
+
+[node name="HangingHiveB" parent="Zone3" instance=ExtResource("18_hive")]
+position = Vector2(1670, -270.0)
+style = "hanging"
+
+[node name="CanopyStone" parent="Zone3" instance=ExtResource("19_stone")]
+position = Vector2(80, -270.0)
+
+[node name="GroundStone1" parent="Zone3" instance=ExtResource("19_stone")]
+position = Vector2(130, 0.0)
+
+[node name="SwiftMint" parent="Zone3" instance=ExtResource("21_mint")]
+position = Vector2(280, 0.0)
+
+[node name="Moonpetal" parent="Zone3" instance=ExtResource("23_moonpetal")]
+position = Vector2(1440, -425.0)
+float_height = 125.0
+
+[node name="GroundStone2" parent="Zone3" instance=ExtResource("19_stone")]
+position = Vector2(2140, 0.0)
+
+[node name="Zone4" type="Node2D" parent="."]
+position = Vector2(6410, 600)
+script = ExtResource("2_zone")
+zone_name = "Crumbling Ridge & the Flood Stream"
+width = 2745.0
+backdrop = "ravine"
+canopy_trunks = false
+
+[node name="Ground7" parent="Zone4" instance=ExtResource("6_ground")]
+position = Vector2(0, 0.0)
+width = 540
+decor_seed = 7
+shade_left_edge = false
+shade_right_edge = true
+
+[node name="Ground8" parent="Zone4" instance=ExtResource("6_ground")]
+position = Vector2(900, 0.0)
+width = 170
+decor_seed = 8
+shade_left_edge = true
+shade_right_edge = true
+
+[node name="Ground9" parent="Zone4" instance=ExtResource("6_ground")]
+position = Vector2(1270, 0.0)
+width = 820
+decor_seed = 9
+shade_left_edge = true
+shade_right_edge = true
+
+[node name="Ground10" parent="Zone4" instance=ExtResource("6_ground")]
+position = Vector2(2590, 0.0)
+width = 155
+decor_seed = 10
+shade_left_edge = true
+shade_right_edge = false
+
+[node name="CollapsingPathLong" parent="Zone4" instance=ExtResource("15_collapse")]
+position = Vector2(540, 0.0)
+length = 360.0
+
+[node name="CollapsingPathShort" parent="Zone4" instance=ExtResource("15_collapse")]
+position = Vector2(1070, 0.0)
+length = 200.0
+
+[node name="Flood" parent="Zone4" instance=ExtResource("16_flood")]
+position = Vector2(2090, 0.0)
+length = 500.0
+
+[node name="VineDown" parent="Zone4" instance=ExtResource("14_vine")]
+position = Vector2(150, -276.0)
+length = 246.0
+
+[node name="Trunk" parent="Zone4" instance=ExtResource("12_trunk")]
+position = Vector2(1580, 0.0)
+
+[node name="SignCrumble" parent="Zone4" instance=ExtResource("8_sign")]
+position = Vector2(410, 0.0)
+icon = "crumble"
+
+[node name="SignTrunk" parent="Zone4" instance=ExtResource("8_sign")]
+position = Vector2(1410, 0.0)
+icon = "trunk"
+
+[node name="SignFlood" parent="Zone4" instance=ExtResource("8_sign")]
+position = Vector2(1990, 0.0)
+icon = "flood"
+
+[node name="BarkShield" parent="Zone4" instance=ExtResource("24_shield")]
+position = Vector2(280, 0.0)
+
+[node name="Stone1" parent="Zone4" instance=ExtResource("19_stone")]
+position = Vector2(340, 0.0)
+
+[node name="Stone2" parent="Zone4" instance=ExtResource("19_stone")]
+position = Vector2(985, 0.0)
+
+[node name="Stone3" parent="Zone4" instance=ExtResource("19_stone")]
+position = Vector2(1750, 0.0)
+
+[node name="StrengthFig" parent="Zone4" instance=ExtResource("22_fig")]
+position = Vector2(1880, 0.0)
+
+[node name="Zone5" type="Node2D" parent="."]
+position = Vector2(9155, 600)
+script = ExtResource("2_zone")
+zone_name = "Mulberry Grove"
+width = 1845.0
+backdrop = "grove"
+canopy_trunks = false
+
+[node name="Clearing" type="Node2D" parent="Zone5"]
+position = Vector2(145, 0.0)
+width = 1150.0
+script = ExtResource("11_clearing")
+
+[node name="Ground11" parent="Zone5" instance=ExtResource("6_ground")]
+position = Vector2(0, 0.0)
+width = 1845
+decor_seed = 11
+shade_left_edge = false
+shade_right_edge = true
+
+[node name="MulberryTree" parent="Zone5" instance=ExtResource("9_tree")]
+position = Vector2(445, 0.0)
+
+[node name="StoneGate" parent="Zone5" instance=ExtResource("10_gate")]
+position = Vector2(1405, 0.0)
+
+[node name="SignTree" parent="Zone5" instance=ExtResource("8_sign")]
+position = Vector2(265, 0.0)
+icon = "tree"
+
+[node name="SignGate" parent="Zone5" instance=ExtResource("8_sign")]
+position = Vector2(1225, 0.0)
+icon = "gate"
+
+[node name="GroveStone1" parent="Zone5" instance=ExtResource("20_regrow")]
+position = Vector2(605, 0.0)
+
+[node name="GroveStone2" parent="Zone5" instance=ExtResource("20_regrow")]
+position = Vector2(640, 0.0)
+
+[node name="GroveStone3" parent="Zone5" instance=ExtResource("20_regrow")]
+position = Vector2(675, 0.0)
+
+[node name="FirefliesGrove" type="Node2D" parent="Zone5"]
+position = Vector2(0, -600)
+script = ExtResource("5_fireflies")
+count = 36
+area = Rect2(0, 300, 1845, 290)
+swarm_seed = 41
+
+[node name="LevelBounds" type="StaticBody2D" parent="."]
+collision_mask = 0
+
+[node name="LeftWall" type="CollisionShape2D" parent="LevelBounds"]
+position = Vector2(-20, 0)
+shape = SubResource("RectangleShape2D_wall")
+
+[node name="RightWall" type="CollisionShape2D" parent="LevelBounds"]
+position = Vector2(11020, 0)
+shape = SubResource("RectangleShape2D_wall")
+
+[node name="Player" parent="." instance=ExtResource("26_player")]
+position = Vector2(70, 600)
+
+[node name="PathRecorder" type="Node" parent="."]
+script = ExtResource("30_recorder")
+player_path = NodePath("../Player")
+
+[node name="Ghosts" type="Node2D" parent="."]
+script = ExtResource("31_manager")
+ghost_scene = ExtResource("32_kghost")
+mischief_scene = ExtResource("33_mghost")
+player_path = NodePath("../Player")
+recorder_path = NodePath("../PathRecorder")
+hud_path = NodePath("../GhostHUD")
+game_over_path = NodePath("../GameOver")
+
+[node name="FirefliesFront" type="Node2D" parent="."]
+script = ExtResource("5_fireflies")
+count = 22
+area = Rect2(0, 380, 11000, 200)
+swarm_seed = 21
+
+[node name="ZoneBanner" parent="." instance=ExtResource("41_banner")]
+
+[node name="ControlsHint" parent="." instance=ExtResource("29_hint")]
+
+[node name="ScreenFlash" parent="." instance=ExtResource("27_flash")]
+
+[node name="GhostHUD" parent="." instance=ExtResource("34_hud")]
+
+[node name="StoneCounter" parent="." instance=ExtResource("36_stonecount")]
+
+[node name="PowerHUD" parent="." instance=ExtResource("40_powerhud")]
+
+[node name="BasketCounter" parent="." instance=ExtResource("38_basket")]
+
+[node name="PromptHint" parent="." instance=ExtResource("37_prompt")]
+
+[node name="GameOver" parent="." instance=ExtResource("35_over")]
+
+[node name="WinScreen" parent="." instance=ExtResource("39_win")]
+
+[node name="PauseMenu" parent="." instance=ExtResource("28_pause")]

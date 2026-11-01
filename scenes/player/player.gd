@@ -34,6 +34,9 @@ const LAYER_HOLE_LID := 8
 
 enum State { NORMAL, CLIMBING, TRIPPED, SHOVED, CUTSCENE }
 
+## Sent when Wild Berries cure the wanderer (poison and bee stings are gone).
+signal cured
+
 ## Sent after the wanderer is put back somewhere (e.g. after a hole). The path recorder uses it.
 signal respawned(pos: Vector2)
 
@@ -53,6 +56,14 @@ var mulberries: int = 0          ## Mulberries in the basket.
 var _auto_walk_speed: float = 0.0  # used while walking out through the gate
 var _slow_timer: float = 0.0     # mischief "Slow" trick
 var _slow_mult: float = 1.0
+var _soak_timer: float = 0.0    # soaked by a flood wave
+var _soak_mult: float = 1.0
+var _poison_timer: float = 0.0  # poisoned by poison flowers
+var _poison_mult: float = 1.0
+var _sting_timer: float = 0.0   # stung by bees
+var _sting_mult: float = 1.0    # speed for ONE sting; stings stack (2 stings = mult x mult, ...)
+var _stings: int = 0            # how many stings right now
+var _sting_label: Label         # the little sting number next to the wanderer
 var _shove_timer: float = 0.0    # mischief "Shove" trick
 var _shove_decel: float = 0.0
 var _popup_tween: Tween
@@ -67,6 +78,7 @@ func _ready() -> void:
 	_start_position = global_position
 	mulberries = mini(start_mulberries, basket_size)
 	popup.modulate.a = 0.0
+	_make_sting_label()
 	_notify_basket.call_deferred()
 	last_floor_x = global_position.x
 	_update_collision_mask()
@@ -118,6 +130,14 @@ func _tick_timers(delta: float) -> void:
 	_regrab_timer -= delta
 	if _slow_timer > 0.0:
 		_slow_timer -= delta
+	if _soak_timer > 0.0:
+		_soak_timer -= delta
+	if _poison_timer > 0.0:
+		_poison_timer -= delta
+	if _sting_timer > 0.0:
+		_sting_timer -= delta
+		if _sting_timer <= 0.0:
+			_stings = 0   # all the stings wear off together
 	if _blink_timer > 0.0:
 		_blink_timer -= delta
 		if _blink_timer <= 0.0:
@@ -221,6 +241,8 @@ func _process_climbing(delta: float) -> void:
 		return
 	if is_on_floor() and v > 0.0:
 		_stop_climbing()
+	elif is_on_floor() and v == 0.0 and dir != 0.0:
+		_stop_climbing()   # standing on the ground at the bottom of a vine: walk off it
 
 
 func enter_vine(vine) -> void:
@@ -259,6 +281,12 @@ func _process_tripped(delta: float) -> void:
 # ---------------------------------------------------------------- mischief ghost tricks
 func _speed_mult() -> float:
 	var m: float = _slow_mult if _slow_timer > 0.0 else 1.0
+	if _soak_timer > 0.0:
+		m *= _soak_mult   # soaked by a flood
+	if _poison_timer > 0.0:
+		m *= _poison_mult   # poisoned by flowers
+	if _sting_timer > 0.0 and _stings > 0:
+		m *= pow(_sting_mult, _stings)    # stung by bees (each sting slows you more)
 	return m * Powers.speed_multiplier()   # Swift Mint makes you faster
 
 
@@ -282,6 +310,51 @@ func _process_shoved(delta: float) -> void:
 	_shove_timer -= delta
 	if _shove_timer <= 0.0:
 		state = State.NORMAL
+
+
+## Flood: soaked, so you move at `multiplier` speed for `seconds` (blue drips show it).
+func soak(multiplier: float, seconds: float) -> void:
+	_soak_mult = multiplier
+	_soak_timer = maxf(_soak_timer, seconds)
+
+
+func is_soaked() -> bool:
+	return _soak_timer > 0.0
+
+
+## Poison flowers: move at `multiplier` speed for `seconds` (green bubbles show it).
+## Touching them again while poisoned starts the timer again from `seconds`.
+func poison(multiplier: float, seconds: float) -> void:
+	_poison_mult = multiplier
+	_poison_timer = seconds
+
+
+func is_poisoned() -> bool:
+	return _poison_timer > 0.0
+
+
+## Bee sting: each sting slows you to `multiplier` of your speed again (stings stack up to
+## `max_stings`), and every new sting starts the `seconds` timer again.
+func sting(multiplier: float, seconds: float, max_stings: int = 3) -> void:
+	_sting_mult = multiplier
+	_stings = mini(_stings + 1, maxi(1, max_stings))
+	_sting_timer = seconds
+
+
+func is_stung() -> bool:
+	return _sting_timer > 0.0 and _stings > 0
+
+
+func sting_count() -> int:
+	return _stings if _sting_timer > 0.0 else 0
+
+
+## Wild Berries: cures poison and bee stings straight away.
+func cure() -> void:
+	_poison_timer = 0.0
+	_sting_timer = 0.0
+	_stings = 0
+	cured.emit()
 
 
 ## Slow trick: move at `multiplier` speed (0.6 = 60%) for `seconds`.
@@ -327,6 +400,9 @@ func lock_controls() -> void:
 	velocity = Vector2.ZERO
 	_blink_timer = 0.0
 	_slow_timer = 0.0
+	_poison_timer = 0.0
+	_sting_timer = 0.0
+	_stings = 0
 
 
 ## Walks to the right on its own (controls stay locked).
@@ -400,6 +476,22 @@ func _update_collision_mask() -> void:
 
 
 # ---------------------------------------------------------------- visuals
+## A small red "Stings x2" label above the wanderer's shoulder (only shown while stung).
+func _make_sting_label() -> void:
+	_sting_label = Label.new()
+	_sting_label.add_theme_color_override("font_color", Color(1.0, 0.45, 0.4))
+	_sting_label.add_theme_color_override("font_outline_color", Color(0.1, 0.02, 0.05, 0.95))
+	_sting_label.add_theme_constant_override("outline_size", 5)
+	_sting_label.add_theme_font_size_override("font_size", 16)
+	_sting_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_sting_label.size = Vector2(120, 22)
+	_sting_label.position = Vector2(-60, -138)
+	_sting_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_sting_label.z_index = 5
+	_sting_label.visible = false
+	add_child(_sting_label)
+
+
 func _update_look() -> void:
 	look.facing = facing
 	var pose: String = "idle"
@@ -419,6 +511,13 @@ func _update_look() -> void:
 		pose = "run"
 	look.pose = pose
 	look.slowed = _slow_timer > 0.0
+	look.soaked = _soak_timer > 0.0
+	look.poisoned = _poison_timer > 0.0
+	var stings: int = sting_count()
+	look.stings = stings
+	_sting_label.visible = stings > 0
+	if stings > 0:
+		_sting_label.text = "Stings x%d" % stings
 	look.speed_ratio = clampf(absf(velocity.x) / run_speed, 0.0, 1.0)
 	if _blink_timer > 0.0:
 		look.visible = fmod(_blink_timer, 0.16) > 0.08

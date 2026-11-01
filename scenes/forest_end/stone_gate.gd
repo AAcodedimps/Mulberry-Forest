@@ -1,5 +1,7 @@
 @tool
 extends Node2D
+const OnScreen = preload("res://scripts/on_screen.gd")
+const Circles = preload("res://scripts/circles.gd")
 ## The old stone gate out of the forest: a tall arch covered in vines, with glowing red runes.
 ## Walk into it:
 ##  - with fewer mulberries than the basket holds: it's a solid wall and shows
@@ -36,7 +38,8 @@ var _player = null
 func _physics_process(delta: float) -> void:
 	_t += delta
 	_deny = maxf(0.0, _deny - delta)
-	queue_redraw()
+	if OnScreen.near(self):   # only redraw when on or near the screen
+		queue_redraw()
 	if Engine.is_editor_hint() or _opened:
 		return
 	if _player == null:
@@ -89,7 +92,7 @@ func _draw() -> void:
 			draw_rect(r.grow(-2.0), STONE_A if i % 2 == 0 else STONE_B)
 			y -= h
 			i += 1
-		draw_circle(Vector2(x0 + pw * 0.5, -4), 16.0, MOSS)
+		Circles.circle(self, Vector2(x0 + pw * 0.5, -4), 16.0, MOSS)
 	# Arch of wedge stones
 	var n: int = 9
 	for k in n:
@@ -131,11 +134,11 @@ func _draw() -> void:
 		draw_polyline(pts, Color("3f9a3c"), 2.0)
 		for m in range(1, pts.size(), 2):
 			var lp: Vector2 = pts[m] + Vector2(6.0 if m % 4 == 1 else -6.0, 0)
-			draw_circle(lp, 4.5, Color("4aa83f"))
+			Circles.circle(self, lp, 4.5, Color("4aa83f"))
 
 
 func _rune(c: Vector2, kind: int, col: Color, pulse: float) -> void:
-	draw_circle(c, 13.0, Color(col.r, col.g, col.b, 0.15 * pulse))
+	Circles.circle(self, c, 13.0, Color(col.r, col.g, col.b, 0.15 * pulse))
 	var w: Color = Color(col.r, col.g, col.b, 0.6 + 0.4 * pulse)
 	match kind % 4:
 		0:
