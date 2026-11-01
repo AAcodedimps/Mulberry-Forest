@@ -27,6 +27,11 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/prompt_hint.tscn" id="25_prompt"]
 [ext_resource type="PackedScene" path="res://scenes/ui/basket_counter.tscn" id="26_basket"]
 [ext_resource type="PackedScene" path="res://scenes/ui/win_screen.tscn" id="27_win"]
+[ext_resource type="PackedScene" path="res://scenes/powers/swift_mint.tscn" id="28_mint"]
+[ext_resource type="PackedScene" path="res://scenes/powers/strength_fig.tscn" id="29_fig"]
+[ext_resource type="PackedScene" path="res://scenes/powers/moonpetal.tscn" id="30_moon"]
+[ext_resource type="PackedScene" path="res://scenes/powers/bark_shield.tscn" id="31_shield"]
+[ext_resource type="PackedScene" path="res://scenes/ui/power_hud.tscn" id="32_powerhud"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wall"]
 size = Vector2(40, 2000)
@@ -145,6 +150,21 @@ position = Vector2(1380, 600)
 [node name="StoneB2" parent="Stones" instance=ExtResource("21_stone")]
 position = Vector2(1414, 600)
 
+[node name="PowerPickups" type="Node2D" parent="."]
+
+[node name="SwiftMint" parent="PowerPickups" instance=ExtResource("28_mint")]
+position = Vector2(210, 600)
+
+[node name="StrengthFig" parent="PowerPickups" instance=ExtResource("29_fig")]
+position = Vector2(470, 600)
+
+[node name="BarkShield" parent="PowerPickups" instance=ExtResource("31_shield")]
+position = Vector2(1080, 600)
+
+[node name="Moonpetal" parent="PowerPickups" instance=ExtResource("30_moon")]
+position = Vector2(1720, 400)
+float_height = 90.0
+
 [node name="LevelBounds" type="StaticBody2D" parent="."]
 collision_mask = 0
 
@@ -202,6 +222,8 @@ vertical_alignment = 1
 [node name="GhostHUD" parent="." instance=ExtResource("18_hud")]
 
 [node name="StoneCounter" parent="." instance=ExtResource("22_stonecount")]
+
+[node name="PowerHUD" parent="." instance=ExtResource("32_powerhud")]
 
 [node name="BasketCounter" parent="." instance=ExtResource("26_basket")]
 

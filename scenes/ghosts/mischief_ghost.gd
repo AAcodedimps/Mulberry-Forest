@@ -85,6 +85,7 @@ func banish() -> void:
 
 # ---------------------------------------------------------------- movement
 func _physics_process(delta: float) -> void:
+	delta *= Powers.world_time_scale()   # Moonpetal slows ghosts down
 	_t += delta
 	queue_redraw()
 	if _puff >= 0.0:
@@ -100,7 +101,13 @@ func _physics_process(delta: float) -> void:
 		return
 	_move_along(speed * delta)
 	if global_position.distance_to(player.global_position) <= reach_distance:
-		_play_trick()
+		if Powers.has_shield():
+			# Bark Shield: the mischief ghost is banished instead of playing a trick.
+			Powers.shield_block()
+			FloatingText.spawn(get_parent(), global_position, "Banished!", Color(0.6, 1.0, 0.6))
+			banish()
+		else:
+			_play_trick()
 
 
 func _move_along(distance: float) -> void:

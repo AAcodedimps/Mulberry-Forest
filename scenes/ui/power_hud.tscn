@@ -1,0 +1,27 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/ui/power_hud.gd" id="1_hud"]
+[ext_resource type="Script" path="res://scenes/ui/power_icons.gd" id="2_icons"]
+
+[node name="PowerHUD" type="CanvasLayer"]
+layer = 4
+script = ExtResource("1_hud")
+
+[node name="Tint" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.35, 0.6, 1, 0.16)
+
+[node name="Icons" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_icons")
