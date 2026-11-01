@@ -32,6 +32,7 @@
 [ext_resource type="PackedScene" path="res://scenes/powers/moonpetal.tscn" id="30_moon"]
 [ext_resource type="PackedScene" path="res://scenes/powers/bark_shield.tscn" id="31_shield"]
 [ext_resource type="PackedScene" path="res://scenes/ui/power_hud.tscn" id="32_powerhud"]
+[ext_resource type="PackedScene" path="res://scenes/powers/regrowing_stone.tscn" id="33_regrow"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wall"]
 size = Vector2(40, 2000)
@@ -149,6 +150,15 @@ position = Vector2(1380, 600)
 
 [node name="StoneB2" parent="Stones" instance=ExtResource("21_stone")]
 position = Vector2(1414, 600)
+
+[node name="ClearingStone1" parent="Stones" instance=ExtResource("33_regrow")]
+position = Vector2(2450, 600)
+
+[node name="ClearingStone2" parent="Stones" instance=ExtResource("33_regrow")]
+position = Vector2(2485, 600)
+
+[node name="ClearingStone3" parent="Stones" instance=ExtResource("33_regrow")]
+position = Vector2(2520, 600)
 
 [node name="PowerPickups" type="Node2D" parent="."]
 

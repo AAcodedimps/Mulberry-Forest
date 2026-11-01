@@ -1,9 +1,9 @@
 @tool
 extends Node2D
 ## The great mulberry tree in the clearing at the end of the forest.
-## - Standing under it refills your stones from the never-ending pile at its foot.
-## - A quick tap of F (X on gamepad) under it makes the wanderer throw a stone straight up:
-##   the tree shakes and one ripe mulberry drops into the basket. One throw = one berry.
+## - A quick tap of F (X on gamepad) under it makes the wanderer throw one of their carried
+##   stones straight up: the tree shakes and one ripe mulberry drops into the basket.
+##   Each shake uses 1 stone; one shake = one berry. With no stones, nothing happens.
 ## - When a mischief ghost steals the basket, the berries fly back up onto the tree.
 ## Place this node on the ground, in the middle of the trunk.
 
@@ -12,7 +12,6 @@ extends Node2D
 @export var throw_time: float = 1.0            ## Seconds each tree throw takes. You can't throw again until it's done.
 @export var under_tree_distance: float = 170.0 ## How close to the trunk (pixels, left or right) counts as "under the tree".
 # ======================================================
-@export var refill_interval: float = 0.4       ## Under the tree, one stone comes back from the pile every this many seconds.
 
 const FloatingText = preload("res://scenes/ui/floating_text.gd")
 
@@ -24,7 +23,6 @@ const LEAF_LIGHT := Color("3a8a5c")
 const BERRY := Color("3f0f58")
 const BERRY_HI := Color("9a4cc8")
 const STONE := Color("7d7d88")
-const STONE_DARK := Color("5c5c68")
 const CANOPY_CENTER := Vector2(0, -320)
 const STONE_UP_TIME := 0.35     # how long the thrown stone takes to reach the leaves
 
@@ -38,7 +36,6 @@ var _shake: float = 0.0
 var _busy: float = 0.0
 var _up: float = -1.0             # thrown-stone progress 0..1 (-1 = none)
 var _up_from := Vector2.ZERO
-var _refill: float = 0.0
 var _under: bool = false
 var _prompt_text: String = ""
 var _player = null
@@ -105,14 +102,7 @@ func _physics_process(delta: float) -> void:
 		elif berries_left() == 0:
 			_set_prompt("No ripe mulberries left")
 		else:
-			_set_prompt("Press F to shake the tree")
-		# The stone pile never runs out: top up the pouch, one stone at a time.
-		_refill += delta
-		if _refill >= refill_interval:
-			_refill = 0.0
-			thrower.add_stone()
-	else:
-		_refill = 0.0
+			_set_prompt("Press F to shake the tree (uses 1 stone)")
 	_shake = maxf(0.0, _shake - delta)
 	_busy = maxf(0.0, _busy - delta)
 	if _up >= 0.0:
@@ -146,6 +136,7 @@ func try_shake(player) -> void:
 		return
 	if not player.stone_thrower.use_stone():
 		get_tree().call_group("stone_counter", "shake")
+		get_tree().call_group("message_hud", "show_message", "You need a stone to shake the tree")
 		return
 	_busy = throw_time
 	_up = 0.0
@@ -211,15 +202,6 @@ func _flying_pos(f: Dictionary) -> Vector2:
 func _draw() -> void:
 	var sway := Vector2(sin(_t * 0.9) * 3.0, 0.0)
 	var jolt := Vector2(sin(_t * 70.0) * _shake * 16.0, cos(_t * 55.0) * _shake * 5.0)
-	# Stone pile at the foot of the tree
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 77
-	for i in 16:
-		var row: int = 0 if i < 7 else (1 if i < 12 else 2)
-		var x: float = 70.0 + (i - [0, 7, 12][row]) * 15.0 + row * 8.0 + rng.randf_range(-2.0, 2.0)
-		var y: float = -7.0 - row * 10.0
-		_ellipse(Vector2(x, y), Vector2(9.0, 7.0), STONE_DARK if i % 3 == 0 else STONE)
-		draw_circle(Vector2(x - 2.5, y - 2.5), 2.0, Color("c9c9d2"))
 	# Roots and trunk
 	draw_colored_polygon(PackedVector2Array([Vector2(-75, 2), Vector2(-40, -20), Vector2(-34, -150), Vector2(-26, -240),
 		Vector2(26, -240), Vector2(34, -150), Vector2(40, -20), Vector2(78, 2)]), TRUNK)
