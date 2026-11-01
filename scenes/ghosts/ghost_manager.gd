@@ -89,6 +89,18 @@ func _update_counts() -> void:
 	hud.set_counts(_alive, _mischief_alive)
 
 
+## How many ghosts (killer + mischief) were raised this run.
+func ghosts_raised() -> int:
+	return _count + _mischief_count
+
+
+## Used when the wanderer escapes: every ghost stops where it is and no new ones rise.
+func freeze_all() -> void:
+	_run_over = true
+	for ghost in get_children():
+		ghost.set_physics_process(false)
+
+
 # ---- TEST ONLY: G raises a killer ghost, H raises a mischief ghost. Delete this function to remove both. ----
 func _unhandled_input(event: InputEvent) -> void:
 	var key := event as InputEventKey

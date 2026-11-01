@@ -63,6 +63,7 @@ func stone_hit_test(point: Vector2) -> bool:
 ## Stone target: a stone banishes a mischief ghost for good.
 func on_stone_hit(_stone) -> void:
 	FloatingText.spawn(get_parent(), global_position, "Banished!", Color(0.6, 1.0, 0.6))
+	GameEvents.report_ghost_beaten(self)
 	banish()
 
 

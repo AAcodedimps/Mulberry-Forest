@@ -30,7 +30,9 @@ const LAYER_HOLE_LID := 8
 @export_group("Testing")
 @export var start_mulberries: int = 0  ## Mulberries in the basket at the start (set above 0 to test the basket-steal trick).
 
-enum State { NORMAL, CLIMBING, TRIPPED, SHOVED }
+@export var basket_size: int = 5  ## How many mulberries the basket holds (the gate wants a full basket).
+
+enum State { NORMAL, CLIMBING, TRIPPED, SHOVED, CUTSCENE }
 
 ## Sent after the wanderer is put back somewhere (e.g. after a hole). The path recorder uses it.
 signal respawned(pos: Vector2)
@@ -47,7 +49,8 @@ var _trip_timer: float = 0.0
 var _blink_timer: float = 0.0
 var _regrab_timer: float = 0.0
 var _start_position: Vector2
-var mulberries: int = 0          ## Mulberries in the basket (nothing collects them yet).
+var mulberries: int = 0          ## Mulberries in the basket.
+var _auto_walk_speed: float = 0.0  # used while walking out through the gate
 var _slow_timer: float = 0.0     # mischief "Slow" trick
 var _slow_mult: float = 1.0
 var _shove_timer: float = 0.0    # mischief "Shove" trick
@@ -62,8 +65,9 @@ var _popup_tween: Tween
 
 func _ready() -> void:
 	_start_position = global_position
-	mulberries = start_mulberries
+	mulberries = mini(start_mulberries, basket_size)
 	popup.modulate.a = 0.0
+	_notify_basket.call_deferred()
 	last_floor_x = global_position.x
 	_update_collision_mask()
 	camera.reset_smoothing()
@@ -96,6 +100,8 @@ func _physics_process(delta: float) -> void:
 			_process_tripped(delta)
 		State.SHOVED:
 			_process_shoved(delta)
+		State.CUTSCENE:
+			velocity = Vector2(_auto_walk_speed, 0.0)   # no gravity: walks straight out of the level
 	move_and_slide()
 	if is_on_floor():
 		_coyote = coyote_time
@@ -287,7 +293,45 @@ func has_mulberries() -> bool:
 func empty_basket() -> int:
 	var lost: int = mulberries
 	mulberries = 0
+	_notify_basket()
 	return lost
+
+
+func basket_full() -> bool:
+	return mulberries >= basket_size
+
+
+## The mulberry tree drops a berry into the basket.
+func add_mulberry() -> void:
+	mulberries = mini(mulberries + 1, basket_size)
+	_notify_basket()
+
+
+func _notify_basket() -> void:
+	get_tree().call_group("basket_counter", "set_berries", mulberries, basket_size)
+
+
+# ---------------------------------------------------------------- escaping through the gate
+## Locks the controls (used when the gate opens).
+func lock_controls() -> void:
+	if state == State.CLIMBING:
+		_stop_climbing()
+	state = State.CUTSCENE
+	planted = false
+	_auto_walk_speed = 0.0
+	velocity = Vector2.ZERO
+	_blink_timer = 0.0
+	_slow_timer = 0.0
+
+
+## Walks to the right on its own (controls stay locked).
+func start_auto_walk(speed: float) -> void:
+	facing = 1
+	_auto_walk_speed = speed
+
+
+func is_locked() -> bool:
+	return state == State.CUTSCENE
 
 
 ## Shows a short word above the wanderer's head that floats up and fades.
@@ -358,6 +402,8 @@ func _update_look() -> void:
 		pose = "tripped"
 	elif state == State.SHOVED:
 		pose = "stumble"
+	elif state == State.CUTSCENE:
+		pose = "run" if _auto_walk_speed > 0.0 else "idle"
 	elif state == State.CLIMBING:
 		pose = "climb_move" if velocity.y != 0.0 else "climb"
 	elif not is_on_floor():
