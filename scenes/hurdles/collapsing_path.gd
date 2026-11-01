@@ -1,5 +1,6 @@
 @tool
 extends Node2D
+const Circles = preload("res://scripts/circles.gd")
 ## A collapsing path: old wooden planks over a gap. A deadly hurdle, like the hole.
 ## Step on it and it trembles and cracks for `tremble_time` seconds, then the planks drop away.
 ## If you're still on it, you fall: exactly like a hole (white flash, back at the edge you came
@@ -158,7 +159,7 @@ func _plank(c: Vector2, w: float, angle: float, alpha: float, cracked: float, i:
 	draw_line(xf * Vector2(-hw, -6), xf * Vector2(hw, -6), Color(WOOD_LIGHT.r, WOOD_LIGHT.g, WOOD_LIGHT.b, alpha), 1.5)
 	draw_line(xf * Vector2(-hw + 3, 1), xf * Vector2(hw - 5, 2), Color(WOOD_DARK.r, WOOD_DARK.g, WOOD_DARK.b, alpha), 1.0)
 	for nx: float in [-hw + 3.0, hw - 3.0]:
-		draw_circle(xf * Vector2(nx, -2), 1.3, Color(0.75, 0.75, 0.8, alpha))
+		Circles.circle(self, xf * Vector2(nx, -2), 1.3, Color(0.75, 0.75, 0.8, alpha))
 	# Cracks spread as it trembles (each plank cracks at its own moment)
 	if cracked > fmod(i * 0.37, 1.0) * 0.8:
 		var cc := Color(CRACK.r, CRACK.g, CRACK.b, alpha)

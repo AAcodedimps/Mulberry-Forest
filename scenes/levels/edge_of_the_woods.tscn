@@ -35,6 +35,8 @@
 [ext_resource type="PackedScene" path="res://scenes/powers/regrowing_stone.tscn" id="33_regrow"]
 [ext_resource type="PackedScene" path="res://scenes/hurdles/collapsing_path.tscn" id="34_collapse"]
 [ext_resource type="PackedScene" path="res://scenes/hurdles/flood.tscn" id="35_flood"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/poison_flowers.tscn" id="36_poison"]
+[ext_resource type="PackedScene" path="res://scenes/powers/wild_berries.tscn" id="37_berries"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wall"]
 size = Vector2(40, 2000)
@@ -97,19 +99,19 @@ layer_seed = 13
 [node name="FirefliesBack" type="Node2D" parent="."]
 script = ExtResource("4_fireflies")
 count = 16
-area = Rect2(0, 240, 3600, 300)
+area = Rect2(0, 240, 4100, 300)
 swarm_seed = 3
 
 [node name="Clearing" type="Node2D" parent="."]
-position = Vector2(2750, 600)
+position = Vector2(3250, 600)
 script = ExtResource("24_clearing")
 width = 850.0
 
 [node name="MulberryTree" parent="." instance=ExtResource("7_tree")]
-position = Vector2(2930, 600)
+position = Vector2(3430, 600)
 
 [node name="StoneGate" parent="." instance=ExtResource("23_gate")]
-position = Vector2(3360, 600)
+position = Vector2(3860, 600)
 
 [node name="Vine" parent="." instance=ExtResource("10_vine")]
 position = Vector2(1640, 394)
@@ -140,8 +142,12 @@ length = 500.0
 
 [node name="GroundEnd" parent="." instance=ExtResource("5_ground")]
 position = Vector2(2760, 600)
-width = 840.0
+width = 1340.0
 decor_seed = 4
+
+[node name="PoisonFlowers" parent="." instance=ExtResource("36_poison")]
+position = Vector2(2900, 600)
+patch_width = 120.0
 
 [node name="CollapsingPath" parent="." instance=ExtResource("34_collapse")]
 position = Vector2(1840, 600)
@@ -172,13 +178,13 @@ position = Vector2(1380, 600)
 position = Vector2(1414, 600)
 
 [node name="ClearingStone1" parent="Stones" instance=ExtResource("33_regrow")]
-position = Vector2(3050, 600)
+position = Vector2(3550, 600)
 
 [node name="ClearingStone2" parent="Stones" instance=ExtResource("33_regrow")]
-position = Vector2(3085, 600)
+position = Vector2(3585, 600)
 
 [node name="ClearingStone3" parent="Stones" instance=ExtResource("33_regrow")]
-position = Vector2(3120, 600)
+position = Vector2(3620, 600)
 
 [node name="PowerPickups" type="Node2D" parent="."]
 
@@ -195,6 +201,9 @@ position = Vector2(1080, 600)
 position = Vector2(1720, 400)
 float_height = 90.0
 
+[node name="WildBerries" parent="PowerPickups" instance=ExtResource("37_berries")]
+position = Vector2(3120, 600)
+
 [node name="LevelBounds" type="StaticBody2D" parent="."]
 collision_mask = 0
 
@@ -203,7 +212,7 @@ position = Vector2(-20, 0)
 shape = SubResource("RectangleShape2D_wall")
 
 [node name="RightWall" type="CollisionShape2D" parent="LevelBounds"]
-position = Vector2(3620, 0)
+position = Vector2(4120, 0)
 shape = SubResource("RectangleShape2D_wall")
 
 [node name="Player" parent="." instance=ExtResource("11_player")]
@@ -225,7 +234,7 @@ game_over_path = NodePath("../GameOver")
 [node name="FirefliesFront" type="Node2D" parent="."]
 script = ExtResource("4_fireflies")
 count = 8
-area = Rect2(0, 380, 3600, 200)
+area = Rect2(0, 380, 4100, 200)
 swarm_seed = 21
 
 [node name="TitleLayer" type="CanvasLayer" parent="."]

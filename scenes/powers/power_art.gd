@@ -1,5 +1,6 @@
 extends RefCounted
-## Draws the four Forest Power items with plain shapes. Shared by the floating pickups and the
+const Circles = preload("res://scripts/circles.gd")
+## Draws the Forest Power items (and the Wild Berries cure) with plain shapes. Shared by the floating pickups and the
 ## corner timer icons, so they always look the same. Everything is drawn around `c`, about
 ## 30 pixels across at size 1.0.
 ## Use it with:  preload("res://scenes/powers/power_art.gd").draw(canvas, "swift_mint", center, 1.0, time)
@@ -15,6 +16,8 @@ static func draw(canvas: CanvasItem, id: String, c: Vector2, s: float, t: float)
 			_moonpetal(canvas, c, s, t)
 		"bark_shield":
 			_shield(canvas, c, s)
+		"wild_berries":
+			_wild_berries(canvas, c, s, t)
 
 
 static func glow_color(id: String) -> Color:
@@ -27,6 +30,8 @@ static func glow_color(id: String) -> Color:
 			return Color(0.6, 0.85, 1.0)
 		"bark_shield":
 			return Color(0.6, 1.0, 0.6)
+		"wild_berries":
+			return Color(1.0, 0.45, 0.45)
 	return Color.WHITE
 
 
@@ -61,29 +66,43 @@ static func _fig(canvas: CanvasItem, c: Vector2, s: float) -> void:
 		pts.append(c + Vector2(cos(a) * r, sin(a) * 12.0 + 2.0) * s)
 	canvas.draw_colored_polygon(pts, Color("8a1f4c"))
 	_ellipse(canvas, c + Vector2(2, 4) * s, Vector2(7, 7) * s, 0.0, Color("a8325f"))
-	canvas.draw_circle(c + Vector2(-4, -1) * s, 2.6 * s, Color(1, 0.75, 0.85, 0.85))
+	Circles.circle(canvas, c + Vector2(-4, -1) * s, 2.6 * s, Color(1, 0.75, 0.85, 0.85))
 	canvas.draw_line(c + Vector2(0, -9) * s, c + Vector2(2, -14) * s, Color("5a3b1a"), 2.2 * s)
 	_ellipse(canvas, c + Vector2(5, -13) * s, Vector2(4, 2) * s, -0.4, Color("4caf50"))
 
 
 # Moonpetal: a pale blue glowing flower.
 static func _moonpetal(canvas: CanvasItem, c: Vector2, s: float, t: float) -> void:
-	canvas.draw_circle(c, 15.0 * s, Color(0.6, 0.85, 1.0, 0.18))
+	Circles.circle(canvas, c, 15.0 * s, Color(0.6, 0.85, 1.0, 0.18))
 	for k in 5:
 		var a: float = k * TAU / 5.0 + t * 0.3
 		_ellipse(canvas, c + Vector2(cos(a), sin(a)) * 7.0 * s, Vector2(7, 4) * s, a, Color("bfe4ff"))
-	canvas.draw_circle(c, 4.0 * s, Color("fff3b0"))
-	canvas.draw_circle(c, 2.0 * s, Color("ffffff"))
+	Circles.circle(canvas, c, 4.0 * s, Color("fff3b0"))
+	Circles.circle(canvas, c, 2.0 * s, Color("ffffff"))
 
 
 # Bark Shield: a round wooden shield with a green rune.
 static func _shield(canvas: CanvasItem, c: Vector2, s: float) -> void:
-	canvas.draw_circle(c, 14.0 * s, Color("5a3a1e"))
-	canvas.draw_circle(c, 11.5 * s, Color("8a5a2e"))
+	Circles.circle(canvas, c, 14.0 * s, Color("5a3a1e"))
+	Circles.circle(canvas, c, 11.5 * s, Color("8a5a2e"))
 	for x: float in [-5.0, 0.0, 5.0]:
 		canvas.draw_line(c + Vector2(x, -10.5) * s, c + Vector2(x, 10.5) * s, Color("6e4523"), 1.2 * s)
-	canvas.draw_circle(c, 6.0 * s, Color(0.4, 1.0, 0.5, 0.25))
+	Circles.circle(canvas, c, 6.0 * s, Color(0.4, 1.0, 0.5, 0.25))
 	var g := Color("7dff8a")
 	canvas.draw_line(c + Vector2(0, -6) * s, c + Vector2(0, 6) * s, g, 2.0 * s)
 	canvas.draw_line(c + Vector2(0, -2) * s, c + Vector2(4, -6) * s, g, 2.0 * s)
 	canvas.draw_line(c + Vector2(0, 2) * s, c + Vector2(-4, -2) * s, g, 2.0 * s)
+
+
+# Wild Berries: a small cluster of shiny red berries on a little stem with a leaf.
+static func _wild_berries(canvas: CanvasItem, c: Vector2, s: float, t: float) -> void:
+	canvas.draw_line(c + Vector2(0, -6) * s, c + Vector2(2, -14) * s, Color("5a3b1a"), 2.0 * s)
+	_ellipse(canvas, c + Vector2(7, -13) * s, Vector2(5, 2.4) * s, -0.3, Color("4caf50"))
+	for o: Vector2 in [Vector2(-5, 1), Vector2(5, 1), Vector2(0, -4), Vector2(0, 6), Vector2(-4, 8), Vector2(4, 8)]:
+		Circles.circle(canvas, c + o * s, 4.6 * s, Color("8f1420"))
+		Circles.circle(canvas, c + o * s, 3.8 * s, Color("d8283a"))
+		Circles.circle(canvas, c + (o + Vector2(-1.4, -1.4)) * s, 1.2 * s, Color(1, 0.85, 0.85, 0.9))
+	var tw: float = 1.5 + 1.5 * absf(sin(t * 3.5))
+	var sp := c + Vector2(-10, -9) * s
+	canvas.draw_line(sp + Vector2(-tw, 0) * s, sp + Vector2(tw, 0) * s, Color(1, 0.9, 0.9), 1.4 * s)
+	canvas.draw_line(sp + Vector2(0, -tw) * s, sp + Vector2(0, tw) * s, Color(1, 0.9, 0.9), 1.4 * s)

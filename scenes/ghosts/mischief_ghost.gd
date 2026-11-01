@@ -1,4 +1,5 @@
 extends Node2D
+const Circles = preload("res://scripts/circles.gd")
 ## A mischief ghost: a see-through green sheet ghost with a cheeky grin and a crooked,
 ## sparkling wand. It rises at the start of the level and floats along the wanderer's
 ## recorded path (exactly like a killer ghost, but faster). When it reaches the wanderer it
@@ -188,7 +189,7 @@ func _draw() -> void:
 
 	if body_alpha > 0.0:
 		var a_mul := Color(1, 1, 1, body_alpha)
-		draw_circle(Vector2(0, -26), 24.0, Color(0.4, 1.0, 0.5, 0.07) * a_mul)
+		Circles.circle(self, Vector2(0, -26), 24.0, Color(0.4, 1.0, 0.5, 0.07) * a_mul)
 		# Sheet body with a wavy hem
 		var body := PackedVector2Array()
 		for i in 17:
@@ -213,10 +214,10 @@ func _draw() -> void:
 			var a: float = PI * 0.05 + PI * 0.9 * i / 10.0
 			mouth.append(Vector2(6.5 + cos(a) * 7.0, -31.0 + sin(a) * 5.0))
 		draw_colored_polygon(mouth, DARK * a_mul)
-		draw_circle(Vector2(7.5, -27.6), 1.8, TONGUE * a_mul)
+		Circles.circle(self, Vector2(7.5, -27.6), 1.8, TONGUE * a_mul)
 		# Arm holding a crooked wand with a star tip
 		var hand := Vector2(14, -19)
-		draw_circle(hand, 4.0, BODY * a_mul)
+		Circles.circle(self, hand, 4.0, BODY * a_mul)
 		var wand := PackedVector2Array([hand, hand + Vector2(4, -4), hand + Vector2(3, -8), hand + Vector2(7, -12), hand + Vector2(6, -16)])
 		draw_polyline(wand, WAND * a_mul, 1.6)
 		var tip: Vector2 = wand[wand.size() - 1]
@@ -245,4 +246,4 @@ func _star(c: Vector2, r: float, col: Color) -> void:
 		return
 	draw_line(c + Vector2(-r, 0), c + Vector2(r, 0), col, 0.8)
 	draw_line(c + Vector2(0, -r), c + Vector2(0, r), col, 0.8)
-	draw_circle(c, r * 0.35, col)
+	Circles.circle(self, c, r * 0.35, col)

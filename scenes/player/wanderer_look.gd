@@ -1,5 +1,6 @@
 @tool
 extends Node2D
+const Circles = preload("res://scripts/circles.gd")
 ## Draws the wanderer with plain shapes: dark green hooded cloak, pale face and a woven basket
 ## on the back. The player script sets `facing` and `pose`; this script only handles looks.
 
@@ -22,6 +23,7 @@ var pose: String = "idle"
 var speed_ratio: float = 0.0
 var slowed: bool = false   # true while a mischief ghost's Slow trick is active
 var soaked: bool = false   # true while soaked by a flood wave
+var poisoned: bool = false # true while poisoned by poison flowers
 var _t: float = 0.0
 
 
@@ -63,8 +65,8 @@ func _draw() -> void:
 		"fall":
 			squash = Vector2(1.03, 0.97)
 	# Soft warm glow behind the wanderer
-	draw_circle(Vector2(0, -24), 34.0, Color(1.0, 0.9, 0.6, 0.06))
-	draw_circle(Vector2(0, -26), 24.0, Color(1.0, 0.92, 0.65, 0.08))
+	Circles.circle(self, Vector2(0, -24), 34.0, Color(1.0, 0.9, 0.6, 0.06))
+	Circles.circle(self, Vector2(0, -26), 24.0, Color(1.0, 0.92, 0.65, 0.08))
 
 	draw_set_transform(Vector2(0, bob), 0.0, squash)
 
@@ -105,13 +107,13 @@ func _draw() -> void:
 		var reach: float = sin(_t * 10.0) * 4.0 if pose == "climb_move" else 0.0
 		draw_line(Vector2(2, -28), Vector2(7, -46 + reach), CLOAK_LIGHT, 4.0)
 		draw_line(Vector2(-2, -28), Vector2(5, -40 - reach), CLOAK_DARK, 4.0)
-		draw_circle(Vector2(7, -47 + reach), 2.5, FACE)
-		draw_circle(Vector2(5, -41 - reach), 2.5, FACE)
+		Circles.circle(self, Vector2(7, -47 + reach), 2.5, FACE)
+		Circles.circle(self, Vector2(5, -41 - reach), 2.5, FACE)
 
 	# Hood with a pointed tip trailing behind
 	draw_colored_polygon(PackedVector2Array([
 		Vector2(-6, -45), Vector2(-17 - flutter * 0.5, -40), Vector2(-7, -33)]), CLOAK_DARK)
-	draw_circle(Vector2(1, -37), 11.0, CLOAK)
+	Circles.circle(self, Vector2(1, -37), 11.0, CLOAK)
 	draw_arc(Vector2(1, -37), 11.0, 0.0, TAU, 28, RIM, 1.2)
 	# Face
 	_ellipse(Vector2(4.5, -36), Vector2(6.0, 6.5), FACE)
@@ -126,8 +128,8 @@ func _draw() -> void:
 			if blink:
 				draw_line(Vector2(ex - 1.0, -37), Vector2(ex + 1.0, -37), EYE, 1.0)
 			else:
-				draw_circle(Vector2(ex, -37), 1.1, EYE)
-		draw_circle(Vector2(8.5, -33.5), 1.4, CHEEK)
+				Circles.circle(self, Vector2(ex, -37), 1.1, EYE)
+		Circles.circle(self, Vector2(8.5, -33.5), 1.4, CHEEK)
 
 	# Green swirls circling the wanderer while slowed
 	if slowed:
@@ -143,8 +145,18 @@ func _draw() -> void:
 			var fall: float = fmod(_t * 45.0 + k * 11.0, 34.0)
 			var d := Vector2(-12.0 + k * 6.0, -40.0 + fall)
 			var a: float = 1.0 - fall / 34.0
-			draw_circle(d, 1.6, Color(0.45, 0.72, 1.0, 0.9 * a))
+			Circles.circle(self, d, 1.6, Color(0.45, 0.72, 1.0, 0.9 * a))
 			draw_colored_polygon(PackedVector2Array([d + Vector2(-1.4, -0.4), d + Vector2(1.4, -0.4), d + Vector2(0, -3.2)]),
 				Color(0.45, 0.72, 1.0, 0.9 * a))
+
+	# Little green bubbles floating up around the wanderer while poisoned
+	if poisoned:
+		for k in 6:
+			var rise: float = fmod(_t * 18.0 + k * 9.0, 50.0)
+			var bub := Vector2(-14.0 + k * 5.6 + sin(_t * 3.0 + k * 1.7) * 2.5, -6.0 - rise)
+			var fade: float = 1.0 - rise / 50.0
+			var br: float = 1.4 + (k % 3) * 0.5
+			Circles.circle(self, bub, br, Color(0.45, 1.0, 0.35, 0.75 * fade))
+			Circles.circle(self, bub + Vector2(-br * 0.35, -br * 0.35), br * 0.4, Color(0.9, 1.0, 0.85, 0.9 * fade))
 
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

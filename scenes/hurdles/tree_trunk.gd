@@ -1,5 +1,6 @@
 @tool
 extends Node2D
+const Circles = preload("res://scripts/circles.gd")
 ## A fallen tree trunk lying across the path, nestled in a mossy mound you can walk over.
 ## If the wanderer runs into it at full speed (see trip_speed in player.gd) they trip and
 ## GameEvents.clumsy_mistake is sent. Walking slowly or jumping over it is safe.
@@ -80,11 +81,11 @@ func _draw() -> void:
 	_ellipse(c + Vector2(1, 0), Vector2(22, 15), WOOD)
 	draw_arc(c + Vector2(1, 0), 10.0, 0.0, TAU, 24, RING, 1.5)
 	draw_arc(c + Vector2(1, 0), 5.0, 0.0, TAU, 18, RING, 1.5)
-	draw_circle(c + Vector2(1, 0), 1.5, RING)
+	Circles.circle(self, c + Vector2(1, 0), 1.5, RING)
 	draw_line(c + Vector2(4, -3), c + Vector2(17, -9), BARK_DARK, 1.5)
 	# Moss cap and little ferns
 	for i in 5:
-		draw_circle(Vector2(-14 + i * 7, -38 + absf(i - 2) * 1.5), 4.0, MOSS_LIGHT if i % 2 == 0 else MOSS)
+		Circles.circle(self, Vector2(-14 + i * 7, -38 + absf(i - 2) * 1.5), 4.0, MOSS_LIGHT if i % 2 == 0 else MOSS)
 	for x: float in [-52.0, 48.0]:
 		for j in 3:
 			draw_line(Vector2(x, -6), Vector2(x - 6 + j * 6, -18 - j % 2 * 4), MOSS_LIGHT, 2.0)
@@ -108,4 +109,4 @@ func _draw_broken() -> void:
 		for v: Vector2 in [Vector2(-1, -0.6), Vector2(1, -0.6), Vector2(1, 0.6), Vector2(-1, 0.6)]:
 			corners.append(pos + (v * size).rotated(a))
 		draw_colored_polygon(corners, col)
-		draw_circle(pos, size * 0.35, wood)
+		Circles.circle(self, pos, size * 0.35, wood)

@@ -1,5 +1,6 @@
 @tool
 extends Node2D
+const Circles = preload("res://scripts/circles.gd")
 ## One background layer of tree silhouettes (pines and round trees) on a rolling hill.
 ## The level stacks three of these inside Parallax2D nodes so far trees scroll slower.
 
@@ -37,9 +38,9 @@ func _draw() -> void:
 					Vector2(x - tw * 0.5, ty), Vector2(x + tw * 0.5, ty), Vector2(x, ty - h * 0.38)]), col)
 		else:
 			var r: float = w * 0.42
-			draw_circle(Vector2(x, base - h * 0.62), r, col)
-			draw_circle(Vector2(x - r * 0.7, base - h * 0.5), r * 0.75, col)
-			draw_circle(Vector2(x + r * 0.7, base - h * 0.52), r * 0.8, col)
+			Circles.circle(self, Vector2(x, base - h * 0.62), r, col)
+			Circles.circle(self, Vector2(x - r * 0.7, base - h * 0.5), r * 0.75, col)
+			Circles.circle(self, Vector2(x + r * 0.7, base - h * 0.52), r * 0.8, col)
 	# Rolling hill in front of the tree bases
 	var hill := PackedVector2Array()
 	var xx: float = x_from

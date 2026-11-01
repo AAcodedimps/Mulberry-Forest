@@ -1,5 +1,6 @@
 @tool
 extends Control
+const Circles = preload("res://scripts/circles.gd")
 ## Fills the screen with a dusk sky: indigo at the top fading to rose and amber near the
 ## horizon, with a pale moon and a few early stars. It sits on a CanvasLayer so it never scrolls.
 
@@ -23,8 +24,8 @@ func _draw() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 11
 	for i in 40:
-		draw_circle(Vector2(rng.randf() * w, rng.randf() * h * 0.4), rng.randf_range(0.6, 1.5), Color(1, 1, 1, rng.randf_range(0.3, 0.8)))
+		Circles.circle(self, Vector2(rng.randf() * w, rng.randf() * h * 0.4), rng.randf_range(0.6, 1.5), Color(1, 1, 1, rng.randf_range(0.3, 0.8)))
 	var moon := Vector2(w * 0.78, h * 0.2)
-	draw_circle(moon, 70.0, Color(1, 0.93, 0.8, 0.08))
-	draw_circle(moon, 48.0, Color(1, 0.93, 0.8, 0.12))
-	draw_circle(moon, 32.0, Color("fbeccc"))
+	Circles.circle(self, moon, 70.0, Color(1, 0.93, 0.8, 0.08))
+	Circles.circle(self, moon, 48.0, Color(1, 0.93, 0.8, 0.12))
+	Circles.circle(self, moon, 32.0, Color("fbeccc"))

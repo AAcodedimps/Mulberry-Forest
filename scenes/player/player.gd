@@ -34,6 +34,9 @@ const LAYER_HOLE_LID := 8
 
 enum State { NORMAL, CLIMBING, TRIPPED, SHOVED, CUTSCENE }
 
+## Sent when Wild Berries cure the wanderer (poison and bee stings are gone).
+signal cured
+
 ## Sent after the wanderer is put back somewhere (e.g. after a hole). The path recorder uses it.
 signal respawned(pos: Vector2)
 
@@ -55,6 +58,10 @@ var _slow_timer: float = 0.0     # mischief "Slow" trick
 var _slow_mult: float = 1.0
 var _soak_timer: float = 0.0    # soaked by a flood wave
 var _soak_mult: float = 1.0
+var _poison_timer: float = 0.0  # poisoned by poison flowers
+var _poison_mult: float = 1.0
+var _sting_timer: float = 0.0   # stung by bees (set up for the bees; Wild Berries already cure it)
+var _sting_mult: float = 1.0
 var _shove_timer: float = 0.0    # mischief "Shove" trick
 var _shove_decel: float = 0.0
 var _popup_tween: Tween
@@ -122,6 +129,10 @@ func _tick_timers(delta: float) -> void:
 		_slow_timer -= delta
 	if _soak_timer > 0.0:
 		_soak_timer -= delta
+	if _poison_timer > 0.0:
+		_poison_timer -= delta
+	if _sting_timer > 0.0:
+		_sting_timer -= delta
 	if _blink_timer > 0.0:
 		_blink_timer -= delta
 		if _blink_timer <= 0.0:
@@ -265,6 +276,10 @@ func _speed_mult() -> float:
 	var m: float = _slow_mult if _slow_timer > 0.0 else 1.0
 	if _soak_timer > 0.0:
 		m *= _soak_mult   # soaked by a flood
+	if _poison_timer > 0.0:
+		m *= _poison_mult   # poisoned by flowers
+	if _sting_timer > 0.0:
+		m *= _sting_mult    # stung by bees
 	return m * Powers.speed_multiplier()   # Swift Mint makes you faster
 
 
@@ -298,6 +313,34 @@ func soak(multiplier: float, seconds: float) -> void:
 
 func is_soaked() -> bool:
 	return _soak_timer > 0.0
+
+
+## Poison flowers: move at `multiplier` speed for `seconds` (green bubbles show it).
+## Touching them again while poisoned starts the timer again from `seconds`.
+func poison(multiplier: float, seconds: float) -> void:
+	_poison_mult = multiplier
+	_poison_timer = seconds
+
+
+func is_poisoned() -> bool:
+	return _poison_timer > 0.0
+
+
+## Bee sting (for the bees): move at `multiplier` speed for `seconds`.
+func sting(multiplier: float, seconds: float) -> void:
+	_sting_mult = multiplier
+	_sting_timer = seconds
+
+
+func is_stung() -> bool:
+	return _sting_timer > 0.0
+
+
+## Wild Berries: cures poison and bee stings straight away.
+func cure() -> void:
+	_poison_timer = 0.0
+	_sting_timer = 0.0
+	cured.emit()
 
 
 ## Slow trick: move at `multiplier` speed (0.6 = 60%) for `seconds`.
@@ -343,6 +386,8 @@ func lock_controls() -> void:
 	velocity = Vector2.ZERO
 	_blink_timer = 0.0
 	_slow_timer = 0.0
+	_poison_timer = 0.0
+	_sting_timer = 0.0
 
 
 ## Walks to the right on its own (controls stay locked).
@@ -436,6 +481,7 @@ func _update_look() -> void:
 	look.pose = pose
 	look.slowed = _slow_timer > 0.0
 	look.soaked = _soak_timer > 0.0
+	look.poisoned = _poison_timer > 0.0
 	look.speed_ratio = clampf(absf(velocity.x) / run_speed, 0.0, 1.0)
 	if _blink_timer > 0.0:
 		look.visible = fmod(_blink_timer, 0.16) > 0.08

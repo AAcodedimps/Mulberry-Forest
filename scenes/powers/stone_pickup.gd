@@ -15,6 +15,6 @@ func _draw_item() -> void:
 		var a: float = TAU * i / 16.0
 		pts.append(Vector2(cos(a) * 13.0, sin(a) * 10.0))
 	draw_colored_polygon(pts, Color("74747e"))
-	draw_circle(Vector2(-1.5, -1.5), 9.0, Color("9a9aa3"))
-	draw_circle(Vector2(-5, -5), 3.0, Color("e0e0e8"))
+	Circles.circle(self, Vector2(-1.5, -1.5), 9.0, Color("9a9aa3"))
+	Circles.circle(self, Vector2(-5, -5), 3.0, Color("e0e0e8"))
 	draw_arc(Vector2(3, 2), 5.0, 0.2, 1.6, 6, Color("5f5f68"), 1.2)

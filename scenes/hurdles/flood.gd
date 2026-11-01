@@ -1,5 +1,6 @@
 @tool
 extends Node2D
+const Circles = preload("res://scripts/circles.gd")
 ## A flooding dip: a low stretch of path with a small stream running through it. A nuisance
 ## hurdle: it never kills you and never makes a ghost.
 ##  - Every few seconds the stream starts rippling with a rushing sound (the warning).
@@ -161,12 +162,12 @@ func _draw() -> void:
 	draw_polyline(PackedVector2Array([surface[0], surface[1]]), MOSS, 8.0)
 	draw_polyline(PackedVector2Array([surface[2], surface[3]]), MOSS, 8.0)
 	for x: float in [6.0, 20.0, length - 20.0, length - 6.0]:
-		draw_circle(Vector2(x, 2), 6.0, MOSS)
+		Circles.circle(self, Vector2(x, 2), 6.0, MOSS)
 	# Reeds at the water's edge
 	for x: float in [RAMP + 6.0, RAMP + 14.0, length - RAMP - 10.0, length - RAMP - 2.0]:
 		var sway: float = sin(_t * 1.5 + x) * 3.0
 		draw_line(Vector2(x, dip_depth), Vector2(x + sway, dip_depth - 30.0), Color("5a8a3a"), 2.0)
-		draw_circle(Vector2(x + sway, dip_depth - 30.0), 2.5, Color("7a5a2a"))
+		Circles.circle(self, Vector2(x + sway, dip_depth - 30.0), 2.5, Color("7a5a2a"))
 	_draw_water()
 
 
@@ -214,7 +215,7 @@ func _draw_water() -> void:
 	if _phase == Phase.FLOODED and front < length:
 		for k in 6:
 			var fy: float = level - 6.0 - fmod(_t * 90.0 + k * 13.0, 30.0)
-			draw_circle(Vector2(front - k * 5.0, fy), 3.0, Color(0.9, 0.97, 1.0, 0.8))
+			Circles.circle(self, Vector2(front - k * 5.0, fy), 3.0, Color(0.9, 0.97, 1.0, 0.8))
 
 
 ## Height of the dip's floor at x (0 at the edges, dip_depth in the middle).

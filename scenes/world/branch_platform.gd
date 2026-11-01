@@ -1,5 +1,6 @@
 @tool
 extends StaticBody2D
+const Circles = preload("res://scripts/circles.gd")
 ## A thick tree branch you can stand on. It's one-way: you can pass up through it from below
 ## and land on top. This node's position is the centre of the branch's top surface.
 
@@ -28,16 +29,16 @@ func _draw() -> void:
 	# Branch body
 	draw_rect(Rect2(-hw, 0, width, thickness), Color("6b4430"))
 	draw_rect(Rect2(-hw, thickness - 5, width, 5), Color("4a2f22"))
-	draw_circle(Vector2(-hw, thickness * 0.5), thickness * 0.5, Color("6b4430"))
+	Circles.circle(self, Vector2(-hw, thickness * 0.5), thickness * 0.5, Color("6b4430"))
 	for i in int(width / 30.0):
 		var x: float = -hw + 12 + i * 30
 		draw_line(Vector2(x, 6), Vector2(x + 14, 8), Color("553524"), 2.0)
 	# Moss along the top
 	var x2: float = -hw
 	while x2 < hw:
-		draw_circle(Vector2(x2, 1), 5.0, Color("3f8a3a"))
+		Circles.circle(self, Vector2(x2, 1), 5.0, Color("3f8a3a"))
 		x2 += 11.0
 	# Leafy clusters
 	for c: Vector2 in [Vector2(-hw - 6, -6), Vector2(-hw + 40, -12), Vector2(hw - 10, -14)]:
-		draw_circle(c, 18.0, Color("1f6a4f"))
-		draw_circle(c + Vector2(10, -6), 13.0, Color("2a8a5e"))
+		Circles.circle(self, c, 18.0, Color("1f6a4f"))
+		Circles.circle(self, c + Vector2(10, -6), 13.0, Color("2a8a5e"))
