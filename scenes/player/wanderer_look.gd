@@ -21,6 +21,7 @@ var facing: int = 1
 var pose: String = "idle"
 var speed_ratio: float = 0.0
 var slowed: bool = false   # true while a mischief ghost's Slow trick is active
+var soaked: bool = false   # true while soaked by a flood wave
 var _t: float = 0.0
 
 
@@ -135,5 +136,15 @@ func _draw() -> void:
 			var c := Vector2(cos(a) * 17.0, -24.0 + sin(a * 1.3) * 16.0)
 			draw_arc(c, 3.5, _t * 6.0, _t * 6.0 + 4.0, 10, Color(0.45, 1.0, 0.45, 0.85), 1.2)
 			draw_arc(c, 1.8, _t * 6.0 + 1.0, _t * 6.0 + 4.5, 8, Color(0.75, 1.0, 0.6, 0.85), 1.0)
+
+	# Little blue drips falling off the wanderer while soaked
+	if soaked:
+		for k in 5:
+			var fall: float = fmod(_t * 45.0 + k * 11.0, 34.0)
+			var d := Vector2(-12.0 + k * 6.0, -40.0 + fall)
+			var a: float = 1.0 - fall / 34.0
+			draw_circle(d, 1.6, Color(0.45, 0.72, 1.0, 0.9 * a))
+			draw_colored_polygon(PackedVector2Array([d + Vector2(-1.4, -0.4), d + Vector2(1.4, -0.4), d + Vector2(0, -3.2)]),
+				Color(0.45, 0.72, 1.0, 0.9 * a))
 
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

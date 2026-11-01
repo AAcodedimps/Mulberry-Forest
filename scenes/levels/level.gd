@@ -4,7 +4,7 @@ extends Node2D
 ## gate opens: ghosts freeze, the wanderer walks out through the arch on their own, the
 ## forest fades to dark and the win screen appears.
 
-@export var level_width: int = 3000
+@export var level_width: int = 3600
 @export var level_height: int = 720
 @export var escape_walk_speed: float = 150.0  ## How fast the wanderer walks out through the gate.
 @export var fade_time: float = 2.5            ## How long the forest takes to fade to dark at the end.

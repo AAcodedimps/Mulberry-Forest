@@ -1,0 +1,10 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/hurdles/flood.gd" id="1_flood"]
+
+[node name="Flood" type="Node2D"]
+z_index = 1
+script = ExtResource("1_flood")
+
+[node name="Ground" type="StaticBody2D" parent="."]
+collision_mask = 0

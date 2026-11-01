@@ -53,6 +53,8 @@ var mulberries: int = 0          ## Mulberries in the basket.
 var _auto_walk_speed: float = 0.0  # used while walking out through the gate
 var _slow_timer: float = 0.0     # mischief "Slow" trick
 var _slow_mult: float = 1.0
+var _soak_timer: float = 0.0    # soaked by a flood wave
+var _soak_mult: float = 1.0
 var _shove_timer: float = 0.0    # mischief "Shove" trick
 var _shove_decel: float = 0.0
 var _popup_tween: Tween
@@ -118,6 +120,8 @@ func _tick_timers(delta: float) -> void:
 	_regrab_timer -= delta
 	if _slow_timer > 0.0:
 		_slow_timer -= delta
+	if _soak_timer > 0.0:
+		_soak_timer -= delta
 	if _blink_timer > 0.0:
 		_blink_timer -= delta
 		if _blink_timer <= 0.0:
@@ -259,6 +263,8 @@ func _process_tripped(delta: float) -> void:
 # ---------------------------------------------------------------- mischief ghost tricks
 func _speed_mult() -> float:
 	var m: float = _slow_mult if _slow_timer > 0.0 else 1.0
+	if _soak_timer > 0.0:
+		m *= _soak_mult   # soaked by a flood
 	return m * Powers.speed_multiplier()   # Swift Mint makes you faster
 
 
@@ -282,6 +288,16 @@ func _process_shoved(delta: float) -> void:
 	_shove_timer -= delta
 	if _shove_timer <= 0.0:
 		state = State.NORMAL
+
+
+## Flood: soaked, so you move at `multiplier` speed for `seconds` (blue drips show it).
+func soak(multiplier: float, seconds: float) -> void:
+	_soak_mult = multiplier
+	_soak_timer = maxf(_soak_timer, seconds)
+
+
+func is_soaked() -> bool:
+	return _soak_timer > 0.0
 
 
 ## Slow trick: move at `multiplier` speed (0.6 = 60%) for `seconds`.
@@ -419,6 +435,7 @@ func _update_look() -> void:
 		pose = "run"
 	look.pose = pose
 	look.slowed = _slow_timer > 0.0
+	look.soaked = _soak_timer > 0.0
 	look.speed_ratio = clampf(absf(velocity.x) / run_speed, 0.0, 1.0)
 	if _blink_timer > 0.0:
 		look.visible = fmod(_blink_timer, 0.16) > 0.08
