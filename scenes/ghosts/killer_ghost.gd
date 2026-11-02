@@ -61,6 +61,7 @@ func stone_hit_test(point: Vector2) -> bool:
 
 ## Stone target: a stone stuns the ghost and knocks it back along its path.
 func on_stone_hit(stone) -> void:
+	Sfx.play("ghost_hit")
 	stun(stone.stun_time)
 	knock_back(stone.knock_back_time)
 	GameEvents.report_ghost_beaten(self)
@@ -149,6 +150,7 @@ func _get_squashed() -> void:
 	_squash = 0.0
 	remove_from_group("ghosts")   # no more arrow for this one
 	remove_from_group("stone_targets")
+	Sfx.play("squash")
 	player.bounce()
 	squashed.emit(self)
 

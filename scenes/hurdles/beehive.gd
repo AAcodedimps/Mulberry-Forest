@@ -54,6 +54,7 @@ var _blend: float = 0.0           # 0 = bees in the swarm, 1 = bees spread out (
 var _bees: Array = []             # per bee: [orbit phase, orbit speed, wobble phase, scatter target]
 var _player = null
 var _rng := RandomNumberGenerator.new()
+var _buzz: AudioStreamPlayer2D   # the swarm's buzzing (loud while chasing, a faint hum at home)
 
 
 func _ready() -> void:
@@ -66,6 +67,11 @@ func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
 	add_to_group("stone_targets")
+	_buzz = AudioStreamPlayer2D.new()
+	_buzz.stream = Sfx.bees_stream()
+	_buzz.max_distance = 900.0
+	_buzz.volume_db = -80.0
+	add_child(_buzz)
 
 
 ## Where the hive hangs, relative to this node (which sits on the ground).
@@ -120,6 +126,27 @@ func _physics_process(delta: float) -> void:
 				_state = State.RETURN
 	if _state == State.CHASE and not locked:
 		_check_sting()
+	_update_buzz(delta)
+
+
+## The swarm buzzes: loudly while chasing, a faint hum at home, silent when scattered or far away.
+func _update_buzz(delta: float) -> void:
+	var near: bool = _player.global_position.distance_to(global_position) < 1000.0
+	var target: float = -80.0
+	if near:
+		match _state:
+			State.CHASE:
+				target = -3.0
+			State.RETURN:
+				target = -12.0
+			State.HOME:
+				target = -22.0
+	if target > -79.0 and not _buzz.playing:
+		_buzz.play(randf() * 0.9)
+	_buzz.position = _swarm
+	_buzz.volume_db = move_toward(_buzz.volume_db, target, delta * 60.0)
+	if _buzz.playing and _buzz.volume_db <= -79.0:
+		_buzz.stop()
 
 
 func _check_sting() -> void:
@@ -140,6 +167,7 @@ func stone_hit_test(point: Vector2) -> bool:
 
 
 func on_stone_hit(_stone) -> void:
+	Sfx.play("ghost_hit", -2.0, 1.5)
 	_state = State.SCATTERED
 	_timer = scatter_time
 	for b: Array in _bees:   # every bee flies off to its own spot around the hive

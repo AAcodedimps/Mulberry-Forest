@@ -25,6 +25,7 @@ var _beaten := {}   # every ghost beaten with a stone, counted once
 
 func _ready() -> void:
 	Powers.reset()   # every run starts with no powers on
+	Sfx.start_music()   # (already playing if we came from the title screen)
 	var builder = get_node_or_null("Forest")
 	if builder != null and builder.has_method("build"):
 		# The random forest: build it first, then fit the level's edges around it.

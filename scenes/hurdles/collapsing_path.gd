@@ -109,6 +109,8 @@ func _on_fall_zone_body_entered(body) -> void:
 	var x: float = global_position.x - edge_margin if came_from_left else global_position.x + length + edge_margin
 	body.call_deferred("respawn_at", Vector2(x, global_position.y))
 	get_tree().call_group("screen_flash", "flash")
+	Sfx.play("fall")
+	body.shake_camera(7.0, 0.45)
 	GameEvents.report_deadly_mistake()
 
 

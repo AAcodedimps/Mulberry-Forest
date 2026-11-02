@@ -47,6 +47,8 @@ func _on_fall_zone_body_entered(body) -> void:
 	var edge := Vector2(global_position.x + side * (hole_width * 0.5 + edge_margin), global_position.y)
 	body.call_deferred("respawn_at", edge)
 	get_tree().call_group("screen_flash", "flash")
+	Sfx.play("fall")
+	body.shake_camera(7.0, 0.45)
 	GameEvents.report_deadly_mistake()
 
 

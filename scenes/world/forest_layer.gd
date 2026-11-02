@@ -3,8 +3,10 @@ extends Node2D
 const Circles = preload("res://scripts/circles.gd")
 ## One background layer of tree silhouettes (pines and round trees) on a rolling hill.
 ## The level stacks three of these inside Parallax2D nodes so far trees scroll slower.
-## Everything is drawn with plain triangles (draw_primitive) so the whole layer goes to the
-## graphics card in one batch; that keeps long levels smooth on slower graphics cards.
+## Every tree is built from plain triangles. The layer is cut into screen-sized pieces, and each
+## piece sends all its triangles to the graphics card as ONE triangle array, so only the pieces
+## that are on screen get drawn at all. That keeps long forests smooth on slower graphics cards
+## (thousands of separate little draw calls across the whole forest were the slow part).
 
 @export var tree_color: Color = Color("1f5a55"):
 	set(value):
@@ -20,16 +22,27 @@ const Circles = preload("res://scripts/circles.gd")
 @export var x_to: float = 3800.0
 
 
+const PIECE := 1000.0   # width of one piece of the layer (pixels)
+
+var _pts := PackedVector2Array()
+var _cols := PackedColorArray()
+var _items: Array[RID] = []    # one canvas item per piece of trees, then one per piece of hill
+
+
 func _draw() -> void:
+	_free_items()
+	var buckets := {}            # piece number -> [points, colours]
 	var rng := RandomNumberGenerator.new()
 	rng.seed = layer_seed
-	# Trees
+	# Trees (each tree goes into the piece its trunk stands in)
 	for i in tree_count:
 		var x: float = lerpf(x_from, x_to, (i + rng.randf()) / tree_count)
 		var h: float = rng.randf_range(min_height, max_height)
 		var base: float = hill_y + rng.randf_range(10, 30)
 		var col: Color = tree_color.lerp(shade_color, rng.randf() * 0.5)
 		var w: float = h * rng.randf_range(0.28, 0.4)
+		_pts = PackedVector2Array()
+		_cols = PackedColorArray()
 		_rect(Rect2(x - w * 0.06, base - h * 0.5, w * 0.12, h * 0.5), col.darkened(0.15))
 		if rng.randf() < 0.6:
 			var tiers: int = 4
@@ -42,20 +55,65 @@ func _draw() -> void:
 			_disc(Vector2(x, base - h * 0.62), r, col)
 			_disc(Vector2(x - r * 0.7, base - h * 0.5), r * 0.75, col)
 			_disc(Vector2(x + r * 0.7, base - h * 0.52), r * 0.8, col)
-	# Rolling hill in front of the tree bases
-	var hill := PackedVector2Array()
-	var xx: float = x_from
-	while xx <= x_to:
-		hill.append(Vector2(xx, hill_y + sin(xx * 0.004 + layer_seed) * 12.0))
-		xx += 40.0
-	hill.append(Vector2(x_to, 900))
-	hill.append(Vector2(x_from, 900))
-	draw_colored_polygon(hill, shade_color)
+		var b: int = int(floorf((x - x_from) / PIECE))
+		if not buckets.has(b):
+			buckets[b] = [PackedVector2Array(), PackedColorArray()]
+		buckets[b][0].append_array(_pts)
+		buckets[b][1].append_array(_cols)
+	var keys: Array = buckets.keys()
+	keys.sort()
+	for b in keys:
+		var pts: PackedVector2Array = buckets[b][0]
+		var idx := PackedInt32Array()
+		idx.resize(pts.size())
+		for i in pts.size():
+			idx[i] = i
+		RenderingServer.canvas_item_add_triangle_array(_new_item(), idx, pts, buckets[b][1])
+	# Rolling hill in front of the tree bases (after all the trees, also in pieces)
+	var a: float = x_from
+	while a < x_to:
+		var e: float = minf(a + PIECE, x_to)
+		var hill := PackedVector2Array()
+		var xx: float = a
+		while xx < e:
+			hill.append(Vector2(xx, _hill_at(xx)))
+			xx += 40.0
+		hill.append(Vector2(e, _hill_at(e)))
+		hill.append(Vector2(e, 900))
+		hill.append(Vector2(a, 900))
+		RenderingServer.canvas_item_add_polygon(_new_item(), hill, PackedColorArray([shade_color]))
+		a = e
+
+
+func _hill_at(x: float) -> float:
+	return hill_y + sin(x * 0.004 + layer_seed) * 12.0
+
+
+func _new_item() -> RID:
+	var item: RID = RenderingServer.canvas_item_create()
+	RenderingServer.canvas_item_set_parent(item, get_canvas_item())
+	_items.append(item)
+	return item
+
+
+func _free_items() -> void:
+	for item in _items:
+		RenderingServer.free_rid(item)
+	_items.clear()
+
+
+func _exit_tree() -> void:
+	_free_items()
 
 
 # ---------------------------------------------------------------- batched shapes
 func _tri(a: Vector2, b: Vector2, c: Vector2, col: Color) -> void:
-	draw_primitive(PackedVector2Array([a, b, c]), PackedColorArray([col, col, col]), PackedVector2Array())
+	_pts.append(a)
+	_pts.append(b)
+	_pts.append(c)
+	_cols.append(col)
+	_cols.append(col)
+	_cols.append(col)
 
 
 func _rect(r: Rect2, col: Color) -> void:

@@ -68,6 +68,11 @@ var _sting_label: Label         # the little sting number next to the wanderer
 var _shove_timer: float = 0.0    # mischief "Shove" trick
 var _shove_decel: float = 0.0
 var _popup_tween: Tween
+var _shake_time: float = 0.0      # screen shake: time left...
+var _shake_length: float = 0.0    # ...how long it lasts...
+var _shake_strength: float = 0.0  # ...and how strong it starts (pixels)
+
+const DustPuff = preload("res://scenes/player/dust_puff.gd")
 
 @onready var look = $Look  # the drawing node (wanderer_look.gd)
 @onready var camera: Camera2D = $Camera2D
@@ -105,6 +110,7 @@ func _jump_gravity() -> float:
 
 func _physics_process(delta: float) -> void:
 	_tick_timers(delta)
+	var was_on_floor: bool = is_on_floor()
 	match state:
 		State.NORMAL:
 			_process_normal(delta)
@@ -116,7 +122,11 @@ func _physics_process(delta: float) -> void:
 			_process_shoved(delta)
 		State.CUTSCENE:
 			velocity = Vector2(_auto_walk_speed, 0.0)   # no gravity: walks straight out of the level
+	var fall_speed: float = velocity.y
 	move_and_slide()
+	if is_on_floor() and not was_on_floor and fall_speed > 260.0 and state != State.CUTSCENE:
+		_landed(fall_speed)
+	_update_shake(delta)
 	if is_on_floor():
 		_coyote = coyote_time
 		last_floor_x = global_position.x
@@ -197,6 +207,7 @@ func _process_normal(delta: float) -> void:
 		velocity.y = -_jump_velocity()
 		_jump_buffer = 0.0
 		_coyote = 0.0
+		_jumped()
 		if not Input.is_action_pressed("jump"):
 			velocity.y *= jump_cut  # button was already let go: small hop
 	# Let go early = shorter jump.
@@ -239,6 +250,7 @@ func _process_climbing(delta: float) -> void:
 		velocity.y = -_jump_velocity() * 0.75
 		velocity.x = dir * run_speed
 		_regrab_timer = 0.25
+		_jumped()
 		return
 	if is_on_floor() and v > 0.0:
 		_stop_climbing()
@@ -492,6 +504,37 @@ func _update_collision_mask() -> void:
 	if _blink_timer > 0.0:
 		m |= LAYER_HOLE_LID      # while blinking, holes have an invisible lid
 	collision_mask = m
+
+
+# ---------------------------------------------------------------- game feel
+## Jumping: a little "hup" and the wanderer stretches upwards for a moment.
+func _jumped() -> void:
+	Sfx.play("jump", -2.0)
+	look.stretch()
+
+
+## Landing after a fall: a soft thud, a puff of dust and a quick squash (bigger for bigger falls).
+func _landed(fall_speed: float) -> void:
+	var k: float = clampf((fall_speed - 260.0) / 600.0, 0.0, 1.0)
+	Sfx.play("land", lerpf(-9.0, 0.0, k))
+	look.land(0.4 + 0.6 * k)
+	DustPuff.spawn(get_parent(), global_position, 0.5 + 0.7 * k)
+
+
+## Shakes the screen for `time` seconds, starting `strength` pixels strong and fading out.
+func shake_camera(strength: float, time: float) -> void:
+	if strength >= _shake_strength * (_shake_time / maxf(_shake_length, 0.001)):
+		_shake_strength = strength
+		_shake_length = time
+		_shake_time = time
+
+
+func _update_shake(delta: float) -> void:
+	if _shake_time <= 0.0:
+		return
+	_shake_time = maxf(0.0, _shake_time - delta)
+	var s: float = _shake_strength * (_shake_time / _shake_length)
+	camera.offset = Vector2(randf_range(-s, s), randf_range(-s, s)) if _shake_time > 0.0 else Vector2.ZERO
 
 
 # ---------------------------------------------------------------- visuals

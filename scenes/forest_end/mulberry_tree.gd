@@ -149,12 +149,14 @@ func try_shake(player) -> void:
 		get_tree().call_group("message_hud", "show_message", "You need a stone to shake the tree")
 		return
 	_busy = throw_time
+	Sfx.play("throw", -6.0, 1.3)
 	_up = 0.0
 	_up_from = to_local(player.global_position + Vector2(8.0 * player.facing, -85.0))
 
 
 func _stone_hits_leaves() -> void:
 	_shake = 0.4
+	Sfx.play("tree_shake")
 	var choices: Array[int] = []
 	for i in _slots.size():
 		if _present[i]:
@@ -183,6 +185,7 @@ func _update_flying(delta: float) -> void:
 				_present[slot] = true   # nowhere to put it: it pops back onto the branch
 			else:
 				_player.add_mulberry(self)
+				Sfx.play("berry")
 				_given.append(slot)
 				FloatingText.spawn(_player.get_parent(), _player.global_position, "+1", Color(0.85, 0.6, 1.0))
 		else:

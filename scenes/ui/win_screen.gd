@@ -21,6 +21,8 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
 	play_again.pressed.connect(_restart)
+	play_again.pressed.connect(func(): Sfx.play("ui_click"))
+	$Center.theme = preload("res://scenes/ui/ui_style.gd").theme()
 	_forest_label = GameOver.make_forest_label($Center/Box)
 	$Center/Box.move_child(_forest_label, 1)   # just under the title
 	_hint = GameOver.make_forest_label($Center/Box)   # hint line under the button
@@ -35,6 +37,7 @@ func show_win(time_seconds: float, mistakes: int, ghosts_beaten: int, clean_esca
 	var total: int = int(time_seconds)
 	stats.text = "Time: %d:%02d\nMistakes: %d\nGhosts beaten: %d" % [int(total / 60.0), total % 60, mistakes, ghosts_beaten]
 	badge.visible = clean_escape
+	Sfx.play("win")
 	_forest_label.text = GameOver.forest_text()
 	_hint.text = "R: new forest     T: try this forest again" if ForestRun.forest_number > 0 else ""
 	var tween := create_tween()

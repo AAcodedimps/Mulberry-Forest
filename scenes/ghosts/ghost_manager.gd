@@ -44,6 +44,8 @@ func raise_ghost() -> void:
 	_alive += 1
 	_update_counts()
 	hud.show_message("A killer ghost has risen...\nJump on its head (Space) to squash it!")
+	Sfx.play("ghost_rise")
+	player.shake_camera(6.0, 0.45)
 
 
 func _on_ghost_squashed(_ghost) -> void:
@@ -57,6 +59,7 @@ func _on_ghost_caught_player(ghost) -> void:
 		return
 	_run_over = true
 	ghost.play_stab()
+	Sfx.play("caught")
 	game_over.show_game_over()
 
 
@@ -73,6 +76,8 @@ func raise_mischief_ghost() -> void:
 	_mischief_alive += 1
 	_update_counts()
 	hud.show_message("A mischief ghost has risen...")
+	Sfx.play("mischief_rise")
+	player.shake_camera(3.5, 0.3)
 
 
 func _on_mischief_trick_played(_ghost, trick: String) -> void:
@@ -99,14 +104,3 @@ func freeze_all() -> void:
 	_run_over = true
 	for ghost in get_children():
 		ghost.set_physics_process(false)
-
-
-# ---- TEST ONLY: G raises a killer ghost, H raises a mischief ghost. Delete this function to remove both. ----
-func _unhandled_input(event: InputEvent) -> void:
-	var key := event as InputEventKey
-	if key == null or not key.pressed or key.echo:
-		return
-	if key.physical_keycode == KEY_G:
-		raise_ghost()
-	elif key.physical_keycode == KEY_H:
-		raise_mischief_ghost()

@@ -28,6 +28,7 @@ func _on_trip_zone_body_entered(body) -> void:
 	if Powers.is_strong():
 		_smash(body)
 	elif body.try_trip():
+		Sfx.play("trip")
 		GameEvents.report_clumsy_mistake()
 
 
@@ -37,6 +38,7 @@ var _pieces: Array = []      # [start offset, velocity, spin, size]
 
 ## Strength Fig: break the trunk into pieces and let the wanderer through.
 func _smash(body) -> void:
+	Sfx.play("smash")
 	_smash_t = 0.0
 	$Body/CollisionPolygon2D.set_deferred("disabled", true)
 	$TripZone.set_deferred("monitoring", false)

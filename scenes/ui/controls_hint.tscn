@@ -37,16 +37,6 @@ theme_override_colors/font_outline_color = Color(0.08, 0.04, 0.12, 1)
 theme_override_constants/outline_size = 4
 theme_override_constants/line_spacing = 4
 theme_override_font_sizes/font_size = 20
-text = "CONTROLS
-Move:  A / D  or  Left / Right
-Jump:  Space  (hold = higher)
-Climb vine:  W / S
-Stop dead:  hold S
-Squash a killer ghost:  jump on its head (Space)
-Throw a stone:  hold F, aim with W / S, let go
-Mulberry tree:  tap F under it (uses 1 stone)
-Stone gate:  walk in with 5 mulberries
-Powers:  run through them (10 seconds each)
-Restart:  R      Pause:  Esc
-Gamepad:  left stick, A to jump
-Test:  G raises a killer ghost,  H a mischief ghost"
+text = "Move:  A / D      Jump:  Space      Climb:  W / S
+Throw a stone:  hold F      Shake a tree:  tap F
+Pause and all controls:  Esc"

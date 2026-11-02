@@ -127,6 +127,7 @@ func _update_preview() -> void:
 
 
 func _throw() -> void:
+	Sfx.play("throw")
 	stones -= 1
 	_notify_counter()
 	var stone = STONE_SCENE.instantiate()

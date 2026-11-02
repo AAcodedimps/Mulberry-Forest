@@ -16,6 +16,8 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
 	retry.pressed.connect(_restart)
+	retry.pressed.connect(func(): Sfx.play("ui_click"))
+	$Center.theme = preload("res://scenes/ui/ui_style.gd").theme()
 	_forest_label = make_forest_label($Center/Box)
 	$Center/Box.move_child(_forest_label, 1)   # just under the title
 

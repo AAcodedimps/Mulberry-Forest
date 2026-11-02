@@ -26,10 +26,26 @@ var soaked: bool = false   # true while soaked by a flood wave
 var poisoned: bool = false # true while poisoned by poison flowers
 var stings: int = 0        # how many bee stings (0-3): little red sting marks
 var _t: float = 0.0
+var _land_k: float = 0.0   # 1 = just landed (squashed), fades to 0
+var _jump_k: float = 0.0   # 1 = just jumped (stretched), fades to 0
+
+
+## Just landed: squash down a little (k = 0..1, how hard the landing was).
+func land(k: float) -> void:
+	_land_k = maxf(_land_k, k)
+	_jump_k = 0.0
+
+
+## Just jumped: stretch up a little.
+func stretch() -> void:
+	_jump_k = 1.0
+	_land_k = 0.0
 
 
 func _process(delta: float) -> void:
 	_t += delta
+	_land_k = move_toward(_land_k, 0.0, delta / 0.16)
+	_jump_k = move_toward(_jump_k, 0.0, delta / 0.22)
 	scale = Vector2(size_scale if facing >= 0 else -size_scale, size_scale)
 	var target_rot: float = 0.0
 	if pose == "tripped":
@@ -65,6 +81,10 @@ func _draw() -> void:
 			squash = Vector2(0.92, 1.08)
 		"fall":
 			squash = Vector2(1.03, 0.97)
+	# Landing squash and jumping stretch (around the feet, so they stay on the ground)
+	var land_e: float = _land_k * _land_k
+	var jump_e: float = sin(_jump_k * PI * 0.5)
+	squash *= Vector2(1.0 + 0.22 * land_e - 0.1 * jump_e, 1.0 - 0.2 * land_e + 0.14 * jump_e)
 	# Soft warm glow behind the wanderer
 	Circles.circle(self, Vector2(0, -24), 34.0, Color(1.0, 0.9, 0.6, 0.06))
 	Circles.circle(self, Vector2(0, -26), 24.0, Color(1.0, 0.92, 0.65, 0.08))
