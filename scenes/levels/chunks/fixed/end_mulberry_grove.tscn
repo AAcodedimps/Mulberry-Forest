@@ -3,16 +3,14 @@
 [ext_resource type="Script" path="res://scenes/levels/chunks/chunk.gd" id="0_chunk"]
 [ext_resource type="PackedScene" path="res://scenes/forest_end/stone_gate.tscn" id="10_gate"]
 [ext_resource type="Script" path="res://scenes/forest_end/clearing.gd" id="11_clearing"]
-[ext_resource type="PackedScene" path="res://scenes/powers/regrowing_stone.tscn" id="20_regrow"]
 [ext_resource type="Script" path="res://scenes/world/fireflies.gd" id="5_fireflies"]
 [ext_resource type="PackedScene" path="res://scenes/world/ground_segment.tscn" id="6_ground"]
 [ext_resource type="PackedScene" path="res://scenes/world/sign.tscn" id="8_sign"]
-[ext_resource type="PackedScene" path="res://scenes/forest_end/mulberry_tree.tscn" id="9_tree"]
 
 [node name="EndMulberryGrove" type="Node2D"]
 script = ExtResource("0_chunk")
 width = 1845.0
-notes = "Always the last part of the forest: the clearing, the mulberry tree, regrowing stones and the stone gate."
+notes = "Always the last part of the forest: the moonlit clearing with the stone gate. (The mulberry trees and the regrowing stones are now placed through the forest by the forest builder.)"
 
 [node name="Clearing" type="Node2D" parent="."]
 position = Vector2(145, 0.0)
@@ -26,28 +24,12 @@ decor_seed = 11
 shade_left_edge = false
 shade_right_edge = true
 
-[node name="MulberryTree" parent="." instance=ExtResource("9_tree")]
-position = Vector2(445, 0.0)
-
 [node name="StoneGate" parent="." instance=ExtResource("10_gate")]
 position = Vector2(1405, 0.0)
-
-[node name="SignTree" parent="." instance=ExtResource("8_sign")]
-position = Vector2(265, 0.0)
-icon = "tree"
 
 [node name="SignGate" parent="." instance=ExtResource("8_sign")]
 position = Vector2(1225, 0.0)
 icon = "gate"
-
-[node name="GroveStone1" parent="." instance=ExtResource("20_regrow")]
-position = Vector2(605, 0.0)
-
-[node name="GroveStone2" parent="." instance=ExtResource("20_regrow")]
-position = Vector2(640, 0.0)
-
-[node name="GroveStone3" parent="." instance=ExtResource("20_regrow")]
-position = Vector2(675, 0.0)
 
 [node name="FirefliesGrove" type="Node2D" parent="."]
 position = Vector2(0, -600)

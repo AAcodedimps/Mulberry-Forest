@@ -21,6 +21,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/win_screen.tscn" id="39_win"]
 [ext_resource type="PackedScene" path="res://scenes/ui/power_hud.tscn" id="40_powerhud"]
 [ext_resource type="PackedScene" path="res://scenes/ui/zone_banner.tscn" id="41_banner"]
+[ext_resource type="Script" path="res://scenes/ui/berry_pointer.gd" id="42_berrypointer"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wall"]
 size = Vector2(40, 2000)
@@ -139,6 +140,9 @@ swarm_seed = 21
 [node name="ScreenFlash" parent="." instance=ExtResource("27_flash")]
 
 [node name="GhostHUD" parent="." instance=ExtResource("34_hud")]
+
+[node name="BerryPointer" type="CanvasLayer" parent="."]
+script = ExtResource("42_berrypointer")
 
 [node name="StoneCounter" parent="." instance=ExtResource("36_stonecount")]
 

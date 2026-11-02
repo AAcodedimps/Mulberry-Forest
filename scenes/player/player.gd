@@ -53,6 +53,7 @@ var _blink_timer: float = 0.0
 var _regrab_timer: float = 0.0
 var _start_position: Vector2
 var mulberries: int = 0          ## Mulberries in the basket.
+var _basket_trees: Array = []    # the tree each basket berry came from (newest last)
 var _auto_walk_speed: float = 0.0  # used while walking out through the gate
 var _slow_timer: float = 0.0     # mischief "Slow" trick
 var _slow_mult: float = 1.0
@@ -367,21 +368,39 @@ func has_mulberries() -> bool:
 	return mulberries > 0
 
 
-## Basket trick: empties the basket. Returns how many mulberries were in it.
+## Empties the basket. Returns how many mulberries were in it.
 func empty_basket() -> int:
 	var lost: int = mulberries
 	mulberries = 0
+	_basket_trees.clear()
 	_notify_basket()
 	return lost
+
+
+## Mischief "steal" trick: takes the newest berry out of the basket and sends it back to the
+## tree it came from. Returns false if the basket was empty.
+func steal_mulberry() -> bool:
+	if mulberries <= 0:
+		return false
+	mulberries -= 1
+	var tree = _basket_trees.pop_back() if not _basket_trees.is_empty() else null
+	if tree != null and is_instance_valid(tree) and tree.has_method("return_berry"):
+		tree.return_berry()
+	_notify_basket()
+	return true
 
 
 func basket_full() -> bool:
 	return mulberries >= basket_size
 
 
-## The mulberry tree drops a berry into the basket.
-func add_mulberry() -> void:
-	mulberries = mini(mulberries + 1, basket_size)
+## A mulberry tree drops a berry into the basket (`from_tree` is remembered, so a stolen
+## berry can fly back to it).
+func add_mulberry(from_tree = null) -> void:
+	if mulberries >= basket_size:
+		return
+	mulberries += 1
+	_basket_trees.append(from_tree)
 	_notify_basket()
 
 

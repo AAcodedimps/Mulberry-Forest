@@ -1,13 +1,16 @@
 extends Node2D
 ## Builds a new random forest every run, like a small roguelite.
 ##  - The start is always "Edge of the Woods" (3 stones and the control signs) and the end is
-##    always the Mulberry Grove (the tree, the regrowing stones and the stone gate).
+##    always the Mulberry Grove clearing with the stone gate.
 ##  - The middle is made of hand-made chunks (scenes in res://scenes/levels/chunks/) picked at
 ##    random and joined end to end: mostly easy first, then medium, then hard near the end.
 ##    Two hard chunks never touch and the same chunk never comes twice in a row.
 ##  - Chunks next to each other with the same theme form one zone, and its name shows when you
 ##    walk in (Hollow Fork, Bee Meadow, Crumbling Ridge, Flood Stream).
 ##  - Stones, Forest Powers and Wild Berries are then placed on the chunks' Spot markers.
+##  - Mulberry trees are spread through the forest: some right on the path, others on a detour
+##    (up in the canopy, at the end of a little side path, or just past a hurdle). The three
+##    regrowing stones go somewhere in the middle of the forest.
 ## The forest number (ForestRun.forest_number) is the random seed, so the same number always
 ## builds the same forest. The level script calls build() when the level starts.
 
@@ -25,6 +28,11 @@ var first_power_screens: float = 1.5      ## The first power comes this many scr
 var cure_chance: float = 0.75             ## Chance that poison flowers get a Wild Berries cure later on (otherwise no cure nearby).
 var cure_min_screens: float = 2.0         ## The cure comes 2 to 3 screens after the flowers...
 var cure_max_screens: float = 3.0         ## ...never right next to them.
+var tree_count: int = 8                   ## How many mulberry trees in the forest.
+var berries_per_tree_min: int = 1         ## Each tree has between this many...
+var berries_per_tree_max: int = 2         ## ...and this many ripe berries.
+var min_total_berries: int = 10           ## Never fewer berries than this in the whole forest (the gate wants 5: basket_size in player.gd).
+var detour_tree_share: float = 0.6        ## About this share of the trees are on a detour (canopy, side path or just past a hurdle); the rest are right on the path.
 # =========================================================================================
 
 const SCREEN := 1280.0 / 1.4      # one screen of forest at the camera's zoom (about 914 pixels)
@@ -53,7 +61,8 @@ const THEMES := {
 var forest_number: int = 0
 var width: float = 0.0
 var gate = null                 ## The stone gate at the end.
-var tree = null                 ## The mulberry tree.
+var trees: Array = []           ## Every mulberry tree: {x, y, kind ("path", "canopy", "side", "hurdle"), berries, node}
+var regrow_x: float = 0.0       ## where the three regrowing stones are
 var placed: Array = []          ## Every chunk in order: {name, path, difficulty, theme, x, width}
 var parts: Array = []           ## Every zone: {name, theme, x, width}
 var stones: Array = []          ## x of every ground stone placed by the builder
@@ -68,6 +77,11 @@ var _rng := RandomNumberGenerator.new()
 var _pool := {"easy": [], "medium": [], "hard": []}
 var _spots: Array = []          # ground spots: {x, pos, chunk, used}
 var _canopy_spots: Array = []
+var _gaps: Array = []           # [left, right] of every hole, crumbling path and flood
+var _trunks: Array = []         # x of every trunk
+var _hives: Array = []          # position of every beehive
+var _branches: Array = []       # [left, right] of every canopy branch
+var _vines: Array = []          # x of every vine
 
 
 # ---------------------------------------------------------------- building
@@ -96,11 +110,16 @@ func build(level: Node = null) -> float:
 	_scan_chunks()
 	_place_powers()
 	_place_cures()
+	_place_trees()
+	_place_regrowing_stones()
 	_place_stones()
 	if level != null:
 		_fit_scenery(level)
-	print("[Forest] #%d built: %d chunks, %.1f screens, %d zones, %d stones (+%d canopy), %d powers, %d cures" % [
-		forest_number, placed.size(), width / SCREEN, parts.size(), stones.size(), canopy_stones.size(), powers.size(), cures.size()])
+	var berry_total: int = 0
+	for t in trees:
+		berry_total += t["berries"]
+	print("[Forest] #%d built: %d chunks, %.1f screens, %d zones, %d stones (+%d canopy), %d powers, %d cures, %d trees with %d berries" % [
+		forest_number, placed.size(), width / SCREEN, parts.size(), stones.size(), canopy_stones.size(), powers.size(), cures.size(), trees.size(), berry_total])
 	return width
 
 
@@ -266,12 +285,31 @@ func _scan_chunks() -> void:
 	_spots.clear()
 	_canopy_spots.clear()
 	poisons.clear()
+	_gaps.clear()
+	_trunks.clear()
+	_hives.clear()
+	_branches.clear()
+	_vines.clear()
 	for i in placed.size():
 		var info: Dictionary = placed[i]
 		var chunk: Node = info["node"]
 		for n in chunk.find_children("*", "", true, false):
-			if n.get_script() != null and str(n.get_script().resource_path).ends_with("poison_flowers.gd"):
-				poisons.append([n.global_position.x, n.global_position.x + n.patch_width])
+			var sp: String = str(n.get_script().resource_path) if n.get_script() != null else ""
+			var gx: float = n.global_position.x
+			if sp.ends_with("poison_flowers.gd"):
+				poisons.append([gx, gx + n.patch_width])
+			elif sp.ends_with("hole.gd"):
+				_gaps.append([gx - n.hole_width * 0.5, gx + n.hole_width * 0.5])
+			elif sp.ends_with("collapsing_path.gd") or sp.ends_with("flood.gd"):
+				_gaps.append([gx, gx + n.length])
+			elif sp.ends_with("tree_trunk.gd"):
+				_trunks.append(gx)
+			elif sp.ends_with("beehive.gd"):
+				_hives.append(n.global_position)
+			elif sp.ends_with("branch_platform.gd"):
+				_branches.append([gx - n.width * 0.5, gx + n.width * 0.5])
+			elif sp.ends_with("vine.gd"):
+				_vines.append(gx)
 			if not (n is Marker2D):
 				continue
 			if i == 0 or i == placed.size() - 1:
@@ -386,6 +424,232 @@ func _place_stones() -> void:
 
 
 ## The free ground spot closest to `x` (but not before `not_before`).
+# ---------------------------------------------------------------- mulberry trees
+const TREE_SCENE := preload("res://scenes/forest_end/mulberry_tree.tscn")
+const REGROW_SCENE := preload("res://scenes/powers/regrowing_stone.tscn")
+const BRANCH_SCENE := preload("res://scenes/world/branch_platform.tscn")
+const VINE_SCENE := preload("res://scenes/hurdles/vine.tscn")
+const PATH_TREE_SCALE := 0.7     # trees on the ground
+const SMALL_TREE_SCALE := 0.5    # trees up on branches
+const TREE_GAP := 600.0          # trees are at least this far apart
+
+
+## Spreads the mulberry trees through the forest: the forest is split into `tree_count` equal
+## stretches with one tree in each. The first tree is always right on the path; after that about
+## `detour_tree_share` of them are on a detour.
+func _place_trees() -> void:
+	trees.clear()
+	var kinds: Array = []
+	var detours: int = roundi((tree_count - 1) * detour_tree_share)
+	var detour_kinds: Array = ["canopy", "side", "hurdle"]
+	for i in tree_count - 1:
+		kinds.append(detour_kinds[_rng.randi() % 3] if i < detours else "path")
+	_shuffle(kinds)
+	kinds.insert(0, "path")
+	var span: float = (middle_to - middle_from) / tree_count
+	for i in tree_count:
+		var from: float = middle_from + span * i + 150.0
+		var to: float = middle_from + span * (i + 1) - 150.0
+		var order: Array = [kinds[i]]
+		for k in ["hurdle", "canopy", "side", "path"]:
+			if not order.has(k):
+				order.append(k)
+		for kind in order:
+			var where = _tree_place(kind, from, to)
+			if where != null:
+				_add_tree(kind, where)
+				break
+	# A stretch with no room (lots of holes and floods)? Fit the missing trees anywhere else.
+	for kind in ["path", "hurdle", "canopy", "side"]:
+		while trees.size() < tree_count:
+			var where = _tree_place(kind, middle_from + 150.0, middle_to - 150.0)
+			if where == null:
+				break
+			_add_tree(kind, where)
+	trees.sort_custom(func(a, b): return a["x"] < b["x"])
+	if trees.size() < tree_count:
+		push_warning("[Forest] only found room for %d of %d mulberry trees" % [trees.size(), tree_count])
+	# Berries: 1 or 2 per tree, topped up so there are always at least min_total_berries.
+	var total: int = 0
+	for t in trees:
+		t["berries"] = _rng.randi_range(berries_per_tree_min, berries_per_tree_max)
+		total += t["berries"]
+	var guard: int = 0
+	while total < min_total_berries and guard < 200:
+		guard += 1
+		var t: Dictionary = trees[_rng.randi() % trees.size()]
+		if t["berries"] < berries_per_tree_max or guard > 100:
+			t["berries"] += 1
+			total += 1
+	for t in trees:
+		t["node"].berries_on_tree = t["berries"]
+		t["node"]._build()
+
+
+## Finds a place for a tree of this kind between from and to. Returns a Vector2 (where the trunk
+## stands) or null.
+func _tree_place(kind: String, from: float, to: float):
+	var options: Array = []
+	match kind:
+		"path":
+			var x: float = from
+			while x <= to:
+				if _ground_clear(x, 160.0) and not _canopy_over(x, 200.0) and _far_from_trees(x):
+					options.append(Vector2(x, 600))
+				x += 40.0
+		"canopy":
+			for s in _canopy_spots:
+				var x: float = s["x"]
+				if x < from or x > to or s["used"] or not _far_from_trees(x):
+					continue
+				var on: bool = false
+				for b in _branches:
+					if x - b[0] >= 110.0 and b[1] - x >= 110.0:
+						on = true
+				var vine_near: bool = false
+				for v in _vines:
+					if absf(v - x) < 70.0:
+						vine_near = true
+				if on and not vine_near:
+					options.append(Vector2(x, 330))
+		"side":
+			# a little side path: a vine up to a short branch with nothing else up there
+			var vx: float = from
+			while vx <= to - 260.0:
+				if _ground_clear(vx, 70.0) and not _canopy_over(vx + 130.0, 330.0) and _far_from_trees(vx + 230.0) and not _hive_near(Vector2(vx + 130.0, 330), 350.0):
+					options.append(Vector2(vx + 230.0, 330))
+				vx += 40.0
+		"hurdle":
+			# on the ground just past a hurdle (preferably under the canopy, so canopy walkers
+			# have to drop down and cross the hurdle to reach it)
+			var ends: Array = []
+			for g in _gaps:
+				ends.append(g[1])
+			for p in poisons:
+				ends.append(p[1])
+			for h in _hives:
+				if h.y > 500.0:
+					ends.append(h.x + 60.0)
+			for e in ends:
+				var x: float = e + 140.0
+				if x < from or x > to or not _far_from_trees(x):
+					continue
+				if _ground_clear(x, 110.0, 120.0, 150.0):
+					options.append(Vector2(x, 600))
+					if _canopy_over(x, 100.0):
+						options.append(Vector2(x, 600))   # counts twice: more likely to be picked
+	if options.is_empty():
+		return null
+	return options[_rng.randi() % options.size()]
+
+
+func _add_tree(kind: String, where: Vector2) -> void:
+	var info: Dictionary = {}
+	for c in placed:
+		if where.x >= c["x"] and where.x < c["x"] + c["width"]:
+			info = c
+	var chunk: Node2D = info["node"]
+	if kind == "side":
+		var vine_x: float = where.x - 230.0
+		var branch = BRANCH_SCENE.instantiate()
+		branch.width = 330.0
+		branch.position = chunk.to_local(Vector2(where.x - 95.0, 330))
+		branch.set_meta("side_path", true)
+		chunk.add_child(branch)
+		var vine = VINE_SCENE.instantiate()
+		vine.set_meta("side_path", true)
+		vine.length = 246.0
+		vine.position = chunk.to_local(Vector2(vine_x, 324))
+		chunk.add_child(vine)
+		_branches.append([where.x - 260.0, where.x + 70.0])
+		_vines.append(vine_x)
+	var tree = TREE_SCENE.instantiate()
+	tree.tree_scale = PATH_TREE_SCALE if where.y > 500.0 else SMALL_TREE_SCALE
+	tree.berries_on_tree = berries_per_tree_max
+	tree.position = chunk.to_local(where)
+	chunk.add_child(tree)
+	chunk.move_child(tree, 0)   # behind the ground, hurdles and pickups
+	for s in _canopy_spots:
+		if absf(s["x"] - where.x) < 150.0 and where.y < 500.0:
+			s["used"] = true   # no stone right inside the tree
+	trees.append({"x": where.x, "y": where.y, "kind": kind, "berries": 0, "node": tree, "chunk": info["name"]})
+
+
+## The three regrowing stones (they grow back 8 seconds after you take them): on a clear bit of
+## ground near the middle of the forest, so nobody runs completely dry of stones.
+func _place_regrowing_stones() -> void:
+	var mid: float = (middle_from + middle_to) * 0.5
+	var best = null
+	for s in _spots:
+		if s["used"] or not _ground_clear(s["x"], 110.0):
+			continue
+		if best == null or absf(s["x"] - mid) < absf(best["x"] - mid):
+			best = s
+	if best == null:
+		push_warning("[Forest] no room for the regrowing stones")
+		return
+	best["used"] = true
+	regrow_x = best["x"]
+	var chunk: Node2D = best["chunk"]
+	for dx in [-35.0, 0.0, 35.0]:
+		var st = REGROW_SCENE.instantiate()
+		st.position = chunk.to_local(best["pos"] + Vector2(dx, 0))
+		chunk.add_child(st)
+	for s in _spots:
+		if absf(s["x"] - best["x"]) < 100.0:
+			s["used"] = true
+
+
+## True if the ground around x is solid and free of hurdles (`left`/`right` override `half`).
+func _ground_clear(x: float, half: float, left: float = -1.0, right: float = -1.0) -> bool:
+	var a: float = x - (left if left >= 0.0 else half)
+	var b: float = x + (right if right >= 0.0 else half)
+	if a < middle_from or b > middle_to:
+		return false
+	for g in _gaps:
+		if g[0] < b and g[1] > a:
+			return false
+	for p in poisons:
+		if p[0] < b + 20.0 and p[1] > a - 20.0:
+			return false
+	for t in _trunks:
+		if t > a - 90.0 and t < b + 90.0:
+			return false
+	for h in _hives:
+		if h.y > 500.0 and absf(h.x - x) < 280.0:
+			return false
+	return true
+
+
+func _canopy_over(x: float, half: float) -> bool:
+	for b in _branches:
+		if b[0] < x + half and b[1] > x - half:
+			return true
+	return false
+
+
+func _hive_near(p: Vector2, dist: float) -> bool:
+	for h in _hives:
+		if h.distance_to(p) < dist:
+			return true
+	return false
+
+
+func _far_from_trees(x: float) -> bool:
+	for t in trees:
+		if absf(t["x"] - x) < TREE_GAP:
+			return false
+	return true
+
+
+func _shuffle(a: Array) -> void:
+	for i in range(a.size() - 1, 0, -1):
+		var j: int = _rng.randi() % (i + 1)
+		var tmp = a[i]
+		a[i] = a[j]
+		a[j] = tmp
+
+
 func _nearest_free_spot(x: float, not_before: float):
 	var best = null
 	for s in _spots:
@@ -421,7 +685,6 @@ func _weighted(weights: Dictionary) -> String:
 func _fit_scenery(level: Node) -> void:
 	var last: Node = placed.back()["node"]
 	gate = last.get_node_or_null("StoneGate")
-	tree = last.get_node_or_null("MulberryTree")
 	for pair in [["FarTrees/Layer", 0.2], ["MidTrees/Layer", 0.45], ["NearTrees/Layer", 0.7]]:
 		var layer = level.get_node_or_null(pair[0])
 		if layer == null:

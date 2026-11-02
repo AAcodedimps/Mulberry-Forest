@@ -77,7 +77,7 @@ func raise_mischief_ghost() -> void:
 
 func _on_mischief_trick_played(_ghost, trick: String) -> void:
 	if trick == "steal":
-		hud.show_message("The ghost stole your basket!")
+		hud.show_message("The ghost stole a mulberry!")
 
 
 func _on_mischief_vanished(_ghost) -> void:

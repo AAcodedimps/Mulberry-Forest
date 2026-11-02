@@ -3,7 +3,9 @@ const Circles = preload("res://scripts/circles.gd")
 ## A mischief ghost: a see-through green sheet ghost with a cheeky grin and a crooked,
 ## sparkling wand. It rises at the start of the level and floats along the wanderer's
 ## recorded path (exactly like a killer ghost, but faster). When it reaches the wanderer it
-## never hurts them: it plays ONE random trick, then vanishes in a puff of green sparkles.
+## never hurts them: it plays ONE random trick (shove, slow, or steal one mulberry from the basket,
+## which flies back to its tree; with an empty basket it never steals), then vanishes in a puff of
+## green sparkles.
 
 # ======================= TUNING =======================
 @export var base_speed: float = 288.0                ## Speed of the first mischief ghost (pixels/second). 20% faster than the first killer ghost (240).
@@ -151,9 +153,9 @@ func _play_trick() -> void:
 			player.apply_slow(slow_multiplier, slow_time)
 			player.show_popup("Slowed!")
 		"steal":
-			player.empty_basket()
+			player.steal_mulberry()   # one berry flies back to the tree it came from
 			GameEvents.report_basket_stolen()
-			player.show_popup("Basket stolen!")
+			player.show_popup("Mulberry stolen!")
 	trick_played.emit(self, trick)
 	_vanish()
 
