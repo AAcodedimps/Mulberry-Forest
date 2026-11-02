@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 GameEvents="*res://scripts/game_events.gd"
 Powers="*res://scripts/powers.gd"
+ForestRun="*res://scripts/forest_run.gd"
 
 [display]
 

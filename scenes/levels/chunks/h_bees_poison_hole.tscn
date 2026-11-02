@@ -1,0 +1,116 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/levels/chunks/chunk.gd" id="0_chunk"]
+[ext_resource type="PackedScene" path="res://scenes/world/ground_segment.tscn" id="1_ground"]
+[ext_resource type="PackedScene" path="res://scenes/world/branch_platform.tscn" id="2_branch"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/beehive.tscn" id="3_hive"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/hole.tscn" id="4_hole"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/poison_flowers.tscn" id="5_poison"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/tree_trunk.tscn" id="6_trunk"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/vine.tscn" id="7_vine"]
+[ext_resource type="PackedScene" path="res://scenes/world/sign.tscn" id="8_sign"]
+
+[node name="HBeesPoisonHole" type="Node2D"]
+script = ExtResource("0_chunk")
+width = 1750.0
+difficulty = "hard"
+theme = "meadow"
+notes = "Bees chase you into poison flowers with a hole right behind them. The canopy has two hanging hives."
+
+[node name="Ground1" parent="." instance=ExtResource("1_ground")]
+position = Vector2(0.0, 0.0)
+width = 900.0
+decor_seed = 340
+shade_left_edge = false
+shade_right_edge = true
+
+[node name="Ground2" parent="." instance=ExtResource("1_ground")]
+position = Vector2(1010.0, 0.0)
+width = 740.0
+decor_seed = 341
+shade_left_edge = true
+shade_right_edge = false
+
+[node name="Hive1" parent="." instance=ExtResource("3_hive")]
+position = Vector2(450.0, 0.0)
+style = "bush"
+chase_height_above = 150.0
+
+[node name="PoisonFlowers1" parent="." instance=ExtResource("5_poison")]
+position = Vector2(700.0, 0.0)
+patch_width = 120.0
+
+[node name="Hole1" parent="." instance=ExtResource("4_hole")]
+position = Vector2(955.0, 0.0)
+hole_width = 110.0
+
+[node name="Trunk1" parent="." instance=ExtResource("6_trunk")]
+position = Vector2(1350.0, 0.0)
+
+[node name="Branch1" parent="." instance=ExtResource("2_branch")]
+position = Vector2(425.0, -270.0)
+width = 450.0
+
+[node name="Branch2" parent="." instance=ExtResource("2_branch")]
+position = Vector2(960.0, -270.0)
+width = 380.0
+
+[node name="Branch3" parent="." instance=ExtResource("2_branch")]
+position = Vector2(1435.0, -270.0)
+width = 330.0
+
+[node name="CanopyHive1" parent="." instance=ExtResource("3_hive")]
+position = Vector2(560.0, -270.0)
+style = "hanging"
+
+[node name="CanopyHive2" parent="." instance=ExtResource("3_hive")]
+position = Vector2(1420.0, -270.0)
+style = "hanging"
+
+[node name="Vine1" parent="." instance=ExtResource("7_vine")]
+position = Vector2(260.0, -276.0)
+length = 246.0
+
+[node name="SignClimb1" parent="." instance=ExtResource("8_sign")]
+position = Vector2(205.0, 0.0)
+icon = "climb"
+
+[node name="Vine2" parent="." instance=ExtResource("7_vine")]
+position = Vector2(1550.0, -276.0)
+length = 246.0
+
+[node name="Spot1" type="Marker2D" parent="."]
+position = Vector2(110.0, 0)
+
+[node name="Spot2" type="Marker2D" parent="."]
+position = Vector2(290.0, 0)
+
+[node name="Spot3" type="Marker2D" parent="."]
+position = Vector2(430.0, 0)
+
+[node name="Spot4" type="Marker2D" parent="."]
+position = Vector2(570.0, 0)
+
+[node name="Spot5" type="Marker2D" parent="."]
+position = Vector2(1090.0, 0)
+
+[node name="Spot6" type="Marker2D" parent="."]
+position = Vector2(1230.0, 0)
+
+[node name="Spot7" type="Marker2D" parent="."]
+position = Vector2(1470.0, 0)
+
+[node name="Spot8" type="Marker2D" parent="."]
+position = Vector2(1610.0, 0)
+
+[node name="CanopySpot1" type="Marker2D" parent="."]
+position = Vector2(310.0, -270)
+
+[node name="CanopySpot2" type="Marker2D" parent="."]
+position = Vector2(840.0, -270)
+
+[node name="CanopySpot3" type="Marker2D" parent="."]
+position = Vector2(1040.0, -270)
+
+[node name="CanopySpot4" type="Marker2D" parent="."]
+position = Vector2(1340.0, -270)

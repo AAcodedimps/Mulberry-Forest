@@ -1,0 +1,46 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/levels/chunks/chunk.gd" id="0_chunk"]
+[ext_resource type="PackedScene" path="res://scenes/world/ground_segment.tscn" id="1_ground"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/hole.tscn" id="2_hole"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/tree_trunk.tscn" id="3_trunk"]
+
+[node name="EMossyLogHop" type="Node2D"]
+script = ExtResource("0_chunk")
+width = 1100.0
+difficulty = "easy"
+theme = "hollow"
+notes = "A fallen trunk, then a hole a few steps after you land."
+
+[node name="Ground1" parent="." instance=ExtResource("1_ground")]
+position = Vector2(0.0, 0.0)
+width = 560.0
+decor_seed = 200
+shade_left_edge = false
+shade_right_edge = true
+
+[node name="Ground2" parent="." instance=ExtResource("1_ground")]
+position = Vector2(660.0, 0.0)
+width = 440.0
+decor_seed = 201
+shade_left_edge = true
+shade_right_edge = false
+
+[node name="Trunk1" parent="." instance=ExtResource("3_trunk")]
+position = Vector2(320.0, 0.0)
+
+[node name="Hole1" parent="." instance=ExtResource("2_hole")]
+position = Vector2(610.0, 0.0)
+hole_width = 100.0
+
+[node name="Spot1" type="Marker2D" parent="."]
+position = Vector2(110.0, 0)
+
+[node name="Spot2" type="Marker2D" parent="."]
+position = Vector2(430.0, 0)
+
+[node name="Spot3" type="Marker2D" parent="."]
+position = Vector2(750.0, 0)
+
+[node name="Spot4" type="Marker2D" parent="."]
+position = Vector2(890.0, 0)

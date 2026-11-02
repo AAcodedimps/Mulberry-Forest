@@ -15,6 +15,14 @@ var _t: float = 0.0
 
 
 func _ready() -> void:
+	rebuild()
+
+
+## Scatters the fireflies over `area` again (the forest builder calls this after it changes the area).
+func rebuild() -> void:
+	_base.clear()
+	_phase.clear()
+	_speed.clear()
 	var rng := RandomNumberGenerator.new()
 	rng.seed = swarm_seed
 	for i in count:

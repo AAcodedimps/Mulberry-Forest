@@ -1,5 +1,6 @@
 extends Node2D
-## Edge of the Woods: tells the camera how big the level is, fades the level name in and out,
+## The level: builds the random forest (if there's a Forest node), tells the camera how big the
+## level is, shows each zone's name when you walk in,
 ## keeps the run's stats (time, mistakes, ghosts beaten) and plays the escape when the stone
 ## gate opens: ghosts freeze, the wanderer walks out through the arch on their own, the
 ## forest fades to dark and the win screen appears.
@@ -24,6 +25,11 @@ var _beaten := {}   # every ghost beaten with a stone, counted once
 
 func _ready() -> void:
 	Powers.reset()   # every run starts with no powers on
+	var builder = get_node_or_null("Forest")
+	if builder != null and builder.has_method("build"):
+		# The random forest: build it first, then fit the level's edges around it.
+		level_width = int(builder.build(self))
+		$LevelBounds/RightWall.position.x = level_width + 20.0
 	$Player.set_camera_limits(0, 0, level_width, level_height)
 	if has_node("TitleLayer/Title"):   # the old test strip shows one title instead of zones
 		var title: Label = $TitleLayer/Title
@@ -39,7 +45,7 @@ func _ready() -> void:
 	GameEvents.deadly_mistake.connect(_on_mistake)
 	GameEvents.clumsy_mistake.connect(_on_mistake)
 	GameEvents.ghost_beaten.connect(_on_ghost_beaten)
-	_gate = get_node(gate_path)
+	_gate = builder.gate if builder != null and builder.get("gate") != null else get_node(gate_path)
 	_gate.opening.connect(_on_gate_opening)
 
 

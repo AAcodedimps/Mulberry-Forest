@@ -1,6 +1,6 @@
 extends CanvasLayer
 ## Handles the two "always available" keys: Esc pauses/unpauses the game (showing this overlay)
-## and R restarts the level. It keeps running while the game is paused.
+## and R restarts the level in a brand new random forest. It keeps running while the game is paused.
 
 
 func _ready() -> void:
@@ -16,6 +16,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		visible = get_tree().paused
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("restart"):
+		get_viewport().set_input_as_handled()   # before reloading: afterwards this node is gone
+		ForestRun.new_forest()   # R always builds a brand new random forest
 		get_tree().paused = false
 		get_tree().reload_current_scene()
-		get_viewport().set_input_as_handled()

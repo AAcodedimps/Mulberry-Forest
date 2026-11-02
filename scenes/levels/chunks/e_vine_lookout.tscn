@@ -1,0 +1,74 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/levels/chunks/chunk.gd" id="0_chunk"]
+[ext_resource type="PackedScene" path="res://scenes/world/ground_segment.tscn" id="1_ground"]
+[ext_resource type="PackedScene" path="res://scenes/world/branch_platform.tscn" id="2_branch"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/hole.tscn" id="3_hole"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/tree_trunk.tscn" id="4_trunk"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/vine.tscn" id="5_vine"]
+[ext_resource type="PackedScene" path="res://scenes/world/sign.tscn" id="6_sign"]
+
+[node name="EVineLookout" type="Node2D"]
+script = ExtResource("0_chunk")
+width = 1300.0
+difficulty = "easy"
+theme = "hollow"
+notes = "A little loop: climb up, run along the branch, climb down, and go round again to lead ghosts in circles. A trunk under the branch and a small hole after."
+
+[node name="Ground1" parent="." instance=ExtResource("1_ground")]
+position = Vector2(0.0, 0.0)
+width = 905.0
+decor_seed = 210
+shade_left_edge = false
+shade_right_edge = true
+
+[node name="Ground2" parent="." instance=ExtResource("1_ground")]
+position = Vector2(995.0, 0.0)
+width = 305.0
+decor_seed = 211
+shade_left_edge = true
+shade_right_edge = false
+
+[node name="Branch1" parent="." instance=ExtResource("2_branch")]
+position = Vector2(450.0, -270.0)
+width = 500.0
+
+[node name="Vine1" parent="." instance=ExtResource("5_vine")]
+position = Vector2(250.0, -276.0)
+length = 246.0
+
+[node name="SignClimb1" parent="." instance=ExtResource("6_sign")]
+position = Vector2(195.0, 0.0)
+icon = "climb"
+
+[node name="Vine2" parent="." instance=ExtResource("5_vine")]
+position = Vector2(650.0, -276.0)
+length = 246.0
+
+[node name="Trunk1" parent="." instance=ExtResource("4_trunk")]
+position = Vector2(450.0, 0.0)
+
+[node name="Hole1" parent="." instance=ExtResource("3_hole")]
+position = Vector2(950.0, 0.0)
+hole_width = 90.0
+
+[node name="Spot1" type="Marker2D" parent="."]
+position = Vector2(110.0, 0)
+
+[node name="Spot2" type="Marker2D" parent="."]
+position = Vector2(290.0, 0)
+
+[node name="Spot3" type="Marker2D" parent="."]
+position = Vector2(570.0, 0)
+
+[node name="Spot4" type="Marker2D" parent="."]
+position = Vector2(710.0, 0)
+
+[node name="Spot5" type="Marker2D" parent="."]
+position = Vector2(1070.0, 0)
+
+[node name="CanopySpot1" type="Marker2D" parent="."]
+position = Vector2(290.0, -270)
+
+[node name="CanopySpot2" type="Marker2D" parent="."]
+position = Vector2(490.0, -270)
