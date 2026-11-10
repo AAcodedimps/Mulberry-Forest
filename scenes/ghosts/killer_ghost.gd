@@ -7,7 +7,7 @@ const Circles = preload("res://scripts/circles.gd")
 ## (falling down onto it after a jump), it gets squashed flat and sends `squashed`.
 
 # ======================= TUNING =======================
-@export var base_speed: float = 264.0                 ## Speed of the first ghost along your path (pixels/second). Moriko's run_speed is 290.
+@export var base_speed: float = 304.0                 ## Speed of the first ghost along your path (pixels/second). Moriko's run_speed is 290 (406 with Swift Mint).
 @export var speed_increase_per_ghost: float = 0.08    ## Each extra ghost is this much faster than the one before (0.08 = 8%).
 @export var catch_distance: float = 40.0              ## How close (pixels) a ghost must get to stab you.
 @export var stomp_width: float = 48.0                 ## How far left/right of the ghost's centre your feet can land and still squash it.
