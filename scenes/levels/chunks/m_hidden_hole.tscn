@@ -1,0 +1,83 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/levels/chunks/chunk.gd" id="0_chunk"]
+[ext_resource type="PackedScene" path="res://scenes/world/ground_segment.tscn" id="1_ground"]
+[ext_resource type="PackedScene" path="res://scenes/world/branch_platform.tscn" id="2_branch"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/hole.tscn" id="3_hole"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/poison_flowers.tscn" id="4_poison"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/tree_trunk.tscn" id="5_trunk"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/vine.tscn" id="6_vine"]
+[ext_resource type="PackedScene" path="res://scenes/world/sign.tscn" id="7_sign"]
+
+[node name="MHiddenHole" type="Node2D"]
+script = ExtResource("0_chunk")
+width = 1350.0
+difficulty = "medium"
+theme = "hollow"
+notes = "A hole hidden just behind a poison patch (jump the flowers short, or walk through and jump the hole). The canopy goes over both."
+
+[node name="Ground1" parent="." instance=ExtResource("1_ground")]
+position = Vector2(0.0, 0.0)
+width = 599.5
+decor_seed = 290
+shade_left_edge = false
+shade_right_edge = true
+
+[node name="Ground2" parent="." instance=ExtResource("1_ground")]
+position = Vector2(704.5, 0.0)
+width = 645.5
+decor_seed = 291
+shade_left_edge = true
+shade_right_edge = false
+
+[node name="PoisonFlowers1" parent="." instance=ExtResource("4_poison")]
+position = Vector2(400.0, 0.0)
+patch_width = 100.0
+
+[node name="Hole1" parent="." instance=ExtResource("3_hole")]
+position = Vector2(652.0, 0.0)
+hole_width = 105.0
+
+[node name="Trunk1" parent="." instance=ExtResource("5_trunk")]
+position = Vector2(1000.0, 0.0)
+
+[node name="Branch1" parent="." instance=ExtResource("2_branch")]
+position = Vector2(475.0, -270.0)
+width = 450.0
+
+[node name="Branch2" parent="." instance=ExtResource("2_branch")]
+position = Vector2(985.0, -270.0)
+width = 330.0
+
+[node name="Vine1" parent="." instance=ExtResource("6_vine")]
+position = Vector2(300.0, -276.0)
+length = 246.0
+
+[node name="SignClimb1" parent="." instance=ExtResource("7_sign")]
+position = Vector2(245.0, 0.0)
+icon = "climb"
+
+[node name="Vine2" parent="." instance=ExtResource("6_vine")]
+position = Vector2(1100.0, -276.0)
+length = 246.0
+
+[node name="Spot1" type="Marker2D" parent="."]
+position = Vector2(110.0, 0)
+
+[node name="Spot2" type="Marker2D" parent="."]
+position = Vector2(250.0, 0)
+
+[node name="Spot3" type="Marker2D" parent="."]
+position = Vector2(790.0, 0)
+
+[node name="Spot4" type="Marker2D" parent="."]
+position = Vector2(1130.0, 0)
+
+[node name="CanopySpot1" type="Marker2D" parent="."]
+position = Vector2(340.0, -270)
+
+[node name="CanopySpot2" type="Marker2D" parent="."]
+position = Vector2(540.0, -270)
+
+[node name="CanopySpot3" type="Marker2D" parent="."]
+position = Vector2(890.0, -270)

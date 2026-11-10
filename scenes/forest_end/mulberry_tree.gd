@@ -2,17 +2,23 @@
 extends Node2D
 const OnScreen = preload("res://scripts/on_screen.gd")
 const Circles = preload("res://scripts/circles.gd")
-## The great mulberry tree in the clearing at the end of the forest.
+## A mulberry tree. The forest builder scatters several of them through the forest (on the
+## path, up in the canopy, at the end of little side paths and just past hurdles).
 ## - A quick tap of F (X on gamepad) under it makes the wanderer throw one of their carried
 ##   stones straight up: the tree shakes and one ripe mulberry drops into the basket.
 ##   Each shake uses 1 stone; one shake = one berry. With no stones, nothing happens.
-## - When a mischief ghost steals the basket, the berries fly back up onto the tree.
-## Place this node on the ground, in the middle of the trunk.
+## - A tree with no berries left looks bare and won't shake.
+## - When a mischief ghost steals a berry from the basket, it flies back to the tree it came from.
+## Place this node on the ground (or on a branch), in the middle of the trunk.
 
 # ======================= TUNING =======================
-@export var berries_on_tree: int = 8           ## How many ripe mulberries hang in the tree.
+@export var berries_on_tree: int = 8           ## How many ripe mulberries hang in the tree (the forest builder sets 1 or 2).
+@export var tree_scale: float = 1.0            ## How big the tree is drawn (1.0 = the old big tree). "Under the tree" shrinks with it.
 @export var throw_time: float = 1.0            ## Seconds each tree throw takes. You can't throw again until it's done.
 @export var under_tree_distance: float = 170.0 ## How close to the trunk (pixels, left or right) counts as "under the tree".
+@export var berry_size: float = 2.0            ## How big each mulberry is drawn (1.0 = the old small berries).
+@export var berry_glow: float = 1.0            ## How strong the soft purple glow around each berry is (0 = none).
+@export var berry_pulse_speed: float = 2.2     ## How fast the glow gently pulses (bigger = faster).
 # ======================================================
 
 const FloatingText = preload("res://scenes/ui/floating_text.gd")
@@ -25,6 +31,7 @@ const LEAF_LIGHT := Color("3a8a5c")
 const BERRY := Color("3f0f58")
 const BERRY_HI := Color("9a4cc8")
 const STONE := Color("7d7d88")
+const BARE := Color("4a3d33")      # the dull brown-green of a picked-clean tree
 const CANOPY_CENTER := Vector2(0, -320)
 const STONE_UP_TIME := 0.35     # how long the thrown stone takes to reach the leaves
 
@@ -44,15 +51,16 @@ var _player = null
 
 
 func _ready() -> void:
+	scale = Vector2(tree_scale, tree_scale)
 	_build()
 	if Engine.is_editor_hint():
 		return
-	GameEvents.basket_stolen.connect(_on_basket_stolen)
+	add_to_group("mulberry_trees")
 
 
 func _build() -> void:
 	var rng := RandomNumberGenerator.new()
-	rng.seed = 2024
+	rng.seed = 2024 + int(position.x)   # every tree gets its own leaf pattern
 	_leaves.clear()
 	for i in 26:
 		var a: float = rng.randf() * TAU
@@ -93,15 +101,17 @@ func _physics_process(delta: float) -> void:
 			return
 	var thrower = _player.stone_thrower
 	var d: Vector2 = _player.global_position - global_position
-	var under: bool = absf(d.x) <= under_tree_distance and absf(d.y) < 150.0 and not _player.is_locked()
+	var under: bool = absf(d.x) <= under_tree_distance * tree_scale and absf(d.y) < 100.0 and not _player.is_locked()
 	if under != _under:
 		_under = under
 		thrower.current_tree = self if under else null
 		if not under:
 			_set_prompt("")
 	if under:
-		if _player.basket_full():
-			_set_prompt("Your basket is full")
+		if berries_left() == 0 and _flying.is_empty():
+			_set_prompt("This tree is bare")
+		elif _player.basket_full():
+			_set_prompt("Moriko's basket is full")
 		elif berries_left() == 0:
 			_set_prompt("No ripe mulberries left")
 		else:
@@ -139,15 +149,17 @@ func try_shake(player) -> void:
 		return
 	if not player.stone_thrower.use_stone():
 		get_tree().call_group("stone_counter", "shake")
-		get_tree().call_group("message_hud", "show_message", "You need a stone to shake the tree")
+		get_tree().call_group("message_hud", "show_message", "Moriko needs a stone to shake the tree")
 		return
 	_busy = throw_time
+	Sfx.play("throw", -6.0, 1.3)
 	_up = 0.0
 	_up_from = to_local(player.global_position + Vector2(8.0 * player.facing, -85.0))
 
 
 func _stone_hits_leaves() -> void:
 	_shake = 0.4
+	Sfx.play("tree_shake")
 	var choices: Array[int] = []
 	for i in _slots.size():
 		if _present[i]:
@@ -175,21 +187,29 @@ func _update_flying(delta: float) -> void:
 			if _player.basket_full():
 				_present[slot] = true   # nowhere to put it: it pops back onto the branch
 			else:
-				_player.add_mulberry()
+				_player.add_mulberry(self)
+				Sfx.play("berry")
 				_given.append(slot)
 				FloatingText.spawn(_player.get_parent(), _player.global_position, "+1", Color(0.85, 0.6, 1.0))
 		else:
 			_present[slot] = true
 
 
-## A mischief ghost stole the basket: every berry in it flies back onto the tree.
-func _on_basket_stolen() -> void:
-	if _player == null:
+## A mischief ghost stole one of this tree's berries from the basket: it flies back up onto
+## the tree (if the tree is far away, the berry simply reappears on its branch).
+func return_berry() -> void:
+	if _given.is_empty():
 		return
-	var from: Vector2 = _basket_point()
-	for slot in _given:
-		_flying.append({"slot": slot, "t": 0.0, "dur": 0.8, "drop": false, "from": from})
-	_given.clear()
+	var slot: int = _given.pop_back()
+	if _player == null or _player.global_position.distance_to(global_position) > 1100.0:
+		_present[slot] = true
+		return
+	_flying.append({"slot": slot, "t": 0.0, "dur": 0.9, "drop": false, "from": _basket_point()})
+
+
+## True while this tree still has ripe berries (the berry pointer uses this).
+func has_berries() -> bool:
+	return berries_left() > 0
 
 
 func _flying_pos(f: Dictionary) -> Vector2:
@@ -214,9 +234,16 @@ func _draw() -> void:
 	for b: Array in [[Vector2(-8, -225), Vector2(-120, -300)], [Vector2(8, -225), Vector2(115, -310)],
 			[Vector2(0, -235), Vector2(-30, -380)], [Vector2(4, -235), Vector2(60, -390)]]:
 		draw_line(b[0], b[1] + sway * 0.5 + jolt * 0.5, TRUNK, 13.0)
-	# Leafy top (shakes when hit)
-	for leaf: Array in _leaves:
-		Circles.circle(self, leaf[0] + sway + jolt, leaf[1], leaf[2])
+	# Leafy top (shakes when hit). Once every berry is gone the tree looks bare: thin, dull leaves.
+	var bare: bool = berries_left() == 0 and _flying.is_empty()
+	for i in _leaves.size():
+		var leaf: Array = _leaves[i]
+		if bare:
+			if i % 3 == 0:
+				continue
+			Circles.circle(self, leaf[0] + sway + jolt, leaf[1] * 0.8, Color(leaf[2]).lerp(BARE, 0.6))
+		else:
+			Circles.circle(self, leaf[0] + sway + jolt, leaf[1], leaf[2])
 	# Ripe mulberries, swaying on their stems
 	for i in _slots.size():
 		if _present[i]:
@@ -235,12 +262,21 @@ func _draw() -> void:
 
 
 func _berry(p: Vector2) -> void:
-	var glow: float = 0.6 + 0.4 * sin(_t * 2.5 + p.x)
-	Circles.circle(self, p, 13.0, Color(0.7, 0.3, 1.0, 0.10 * glow))
-	Circles.circle(self, p, 8.0, Color(0.7, 0.3, 1.0, 0.18 * glow))
+	# Small trees draw their berries a bit bigger, so you can spot them from afar.
+	var k: float = 1.5 / sqrt(clampf(tree_scale, 0.3, 1.0)) if tree_scale < 0.99 else 1.0
+	k *= berry_size
+	# A gentle pulse: the glow breathes and the berry swells very slightly.
+	var pulse: float = 0.5 + 0.5 * sin(_t * berry_pulse_speed + p.x * 0.05)
+	var s: float = k * (1.0 + 0.06 * pulse)
+	var g: float = berry_glow * (0.7 + 0.3 * pulse)
+	# Soft purple halo: wide and faint on the outside, brighter near the berry.
+	Circles.circle(self, p, 18.0 * s, Color(0.65, 0.3, 1.0, 0.10 * g))
+	Circles.circle(self, p, 14.0 * s, Color(0.72, 0.38, 1.0, 0.16 * g))
+	Circles.circle(self, p, 10.5 * s, Color(0.8, 0.48, 1.0, 0.26 * g))
+	Circles.circle(self, p, 7.5 * s, Color(0.9, 0.62, 1.0, 0.38 * g))
 	for o: Vector2 in [Vector2(-2.5, -2), Vector2(2.5, -2), Vector2(0, 1.5), Vector2(0, -4.5)]:
-		Circles.circle(self, p + o, 3.4, BERRY)
-	Circles.circle(self, p + Vector2(-1.8, -3.0), 1.3, BERRY_HI)
+		Circles.circle(self, p + o * s, 3.4 * s, BERRY)
+	Circles.circle(self, p + Vector2(-1.8, -3.0) * s, 1.4 * s, BERRY_HI.lerp(Color(1, 0.85, 1), 0.3 * pulse))
 
 
 func _ellipse(c: Vector2, r: Vector2, col: Color) -> void:

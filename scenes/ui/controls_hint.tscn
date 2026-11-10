@@ -24,9 +24,9 @@ script = ExtResource("1_hint")
 
 [node name="Panel" type="PanelContainer" parent="."]
 offset_left = 16.0
-offset_top = 16.0
+offset_top = 150.0
 offset_right = 16.0
-offset_bottom = 16.0
+offset_bottom = 150.0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
@@ -34,19 +34,9 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 layout_mode = 2
 theme_override_colors/font_color = Color(0.97, 0.93, 0.82, 1)
 theme_override_colors/font_outline_color = Color(0.08, 0.04, 0.12, 1)
-theme_override_constants/outline_size = 4
-theme_override_constants/line_spacing = 4
-theme_override_font_sizes/font_size = 20
-text = "CONTROLS
-Move:  A / D  or  Left / Right
-Jump:  Space  (hold = higher)
-Climb vine:  W / S
-Stop dead:  hold S
-Squash a killer ghost:  jump on its head (Space)
-Throw a stone:  hold F, aim with W / S, let go
-Mulberry tree:  tap F under it (uses 1 stone)
-Stone gate:  walk in with 5 mulberries
-Powers:  run through them (10 seconds each)
-Restart:  R      Pause:  Esc
-Gamepad:  left stick, A to jump
-Test:  G raises a killer ghost,  H a mischief ghost"
+theme_override_constants/outline_size = 5
+theme_override_constants/line_spacing = 6
+theme_override_font_sizes/font_size = 28
+text = "Arrow keys: move and climb
+Space: jump
+F: throw a stone (shake trees for mulberries, or hit ghosts)"

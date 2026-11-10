@@ -3,10 +3,12 @@ const Circles = preload("res://scripts/circles.gd")
 ## A mischief ghost: a see-through green sheet ghost with a cheeky grin and a crooked,
 ## sparkling wand. It rises at the start of the level and floats along the wanderer's
 ## recorded path (exactly like a killer ghost, but faster). When it reaches the wanderer it
-## never hurts them: it plays ONE random trick, then vanishes in a puff of green sparkles.
+## never hurts them: it plays ONE random trick (shove, slow, or steal one mulberry from the basket,
+## which flies back to its tree; with an empty basket it never steals), then vanishes in a puff of
+## green sparkles.
 
 # ======================= TUNING =======================
-@export var base_speed: float = 288.0                ## Speed of the first mischief ghost (pixels/second). 20% faster than the first killer ghost (240).
+@export var base_speed: float = 288.0                ## Speed of the first mischief ghost (pixels/second). (The first killer ghost moves at 304.)
 @export var speed_increase_per_ghost: float = 0.08   ## Each extra mischief ghost is this much faster than the one before (0.08 = 8%).
 @export var shove_distance: float = 160.0            ## Shove trick: how far you're pushed back, in pixels (about 3 metres for the wanderer).
 @export var shove_time: float = 0.5                  ## Shove trick: how long you stumble without control (seconds).
@@ -63,6 +65,7 @@ func stone_hit_test(point: Vector2) -> bool:
 
 ## Stone target: a stone banishes a mischief ghost for good.
 func on_stone_hit(_stone) -> void:
+	Sfx.play("ghost_hit", 0.0, 1.25)
 	FloatingText.spawn(get_parent(), global_position, "Banished!", Color(0.6, 1.0, 0.6))
 	GameEvents.report_ghost_beaten(self)
 	banish()
@@ -151,9 +154,9 @@ func _play_trick() -> void:
 			player.apply_slow(slow_multiplier, slow_time)
 			player.show_popup("Slowed!")
 		"steal":
-			player.empty_basket()
+			player.steal_mulberry()   # one berry flies back to the tree it came from
 			GameEvents.report_basket_stolen()
-			player.show_popup("Basket stolen!")
+			player.show_popup("Mulberry stolen!")
 	trick_played.emit(self, trick)
 	_vanish()
 

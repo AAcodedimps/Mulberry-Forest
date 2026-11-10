@@ -5,7 +5,7 @@ const Circles = preload("res://scripts/circles.gd")
 ## Shared setup for every collectible power (stones now; Swift Mint, Strength Fig, Moonpetal,
 ## Bark Shield and Wild Berries later). The item floats at chest height, bobs gently, glows
 ## and sparkles. It is collected the moment ANY part of the wanderer's body touches it
-## (running, jumping or climbing through it), with a little pop sound and a "+1" above the
+## (running, jumping or climbing through it), with a little pickup sound and a "+1" above the
 ## wanderer. If the wanderer can't carry more, it simply stays floating.
 ##
 ## Place the node ON THE GROUND; the item floats `float_height` above that spot.
@@ -27,8 +27,6 @@ const Circles = preload("res://scripts/circles.gd")
 @export var popup_color: Color = Color(1.0, 0.95, 0.7)
 
 const FloatingText = preload("res://scenes/ui/floating_text.gd")
-
-static var _pop_sound: AudioStreamWAV
 
 var _t: float = 0.0
 var _pop: float = -1.0   # -1 = waiting to be collected; 0..1 = popping
@@ -128,35 +126,11 @@ func _draw() -> void:
 			Circles.circle(self, p, 2.5 * (1.0 - _pop * 0.6), Color(g.r, g.g, g.b, 1.0))
 
 
-# ---------------------------------------------------------------- pop sound
+# ---------------------------------------------------------------- pickup sound
 func _play_pop() -> void:
-	if _pop_sound == null:
-		_pop_sound = _make_pop_sound()
-	var player := AudioStreamPlayer.new()
-	player.stream = _pop_sound
-	player.volume_db = -8.0
-	get_parent().add_child(player)
-	player.finished.connect(player.queue_free)
-	player.play()
+	Sfx.play(_pickup_sound())
 
 
-## Builds a tiny "pop" sound in code (a quick rising blip), so no sound file is needed.
-static func _make_pop_sound() -> AudioStreamWAV:
-	var rate: int = 22050
-	var length: float = 0.09
-	var n: int = int(rate * length)
-	var data := PackedByteArray()
-	data.resize(n * 2)
-	var phase: float = 0.0
-	for i in n:
-		var t: float = float(i) / rate
-		var freq: float = lerpf(600.0, 1400.0, t / length)
-		phase += TAU * freq / rate
-		var sample: float = sin(phase) * exp(-t * 40.0) * 0.6
-		data.encode_s16(i * 2, int(clampf(sample, -1.0, 1.0) * 32767.0))
-	var wav := AudioStreamWAV.new()
-	wav.format = AudioStreamWAV.FORMAT_16_BITS
-	wav.mix_rate = rate
-	wav.stereo = false
-	wav.data = data
-	return wav
+## Override: which sound plays when this is collected (see scripts/sfx.gd).
+func _pickup_sound() -> String:
+	return "pickup_stone"

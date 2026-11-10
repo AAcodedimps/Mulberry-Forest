@@ -15,7 +15,7 @@ extends Node2D
 	set(value):
 		width = value
 		_refresh()
-@export_enum("none", "hollow", "meadow", "ravine", "grove") var backdrop: String = "none":
+@export_enum("none", "hollow", "meadow", "ravine", "stream", "grove") var backdrop: String = "none":
 	set(value):
 		backdrop = value
 		_refresh()
@@ -108,6 +108,23 @@ func _draw_backdrop() -> void:
 				_back.draw_colored_polygon(PackedVector2Array([Vector2(x3 - w3 * 0.5, 0), Vector2(x3 - w3 * 0.2, -h3),
 					Vector2(x3 + w3 * 0.1, -h3 * 0.8), Vector2(x3 + w3 * 0.5, 0)]), Color(0.12, 0.09, 0.15))
 				x3 += rng.randf_range(160.0, 260.0)
+		"stream":
+			# Wet ground: dark pools catching the dusk light, with reeds and mossy stones around them
+			var x5: float = 140.0
+			while x5 < width - 140.0:
+				var pw: float = rng.randf_range(120.0, 220.0)
+				var py: float = -rng.randf_range(18.0, 46.0)
+				var pool := PackedVector2Array()
+				for k in 14:
+					var a: float = TAU * k / 14.0
+					pool.append(Vector2(x5 + cos(a) * pw * 0.5, py + sin(a) * 7.0))
+				_back.draw_colored_polygon(pool, Color(0.14, 0.2, 0.36, 0.75))
+				_back.draw_line(Vector2(x5 - pw * 0.3, py - 2.0), Vector2(x5 + pw * 0.1, py - 2.0), Color(0.75, 0.6, 0.75, 0.35), 2.0)
+				for k in 5:
+					var rx: float = x5 + pw * 0.5 + 6.0 + k * 5.0
+					_back.draw_line(Vector2(rx, py + 4.0), Vector2(rx + rng.randf_range(-3, 3), py - rng.randf_range(22.0, 40.0)), Color(0.22, 0.42, 0.28, 0.9), 2.0)
+				Circles.circle(_back, Vector2(x5 - pw * 0.5 - 10.0, py + 2.0), 9.0, Color(0.2, 0.18, 0.24))
+				x5 += rng.randf_range(300.0, 460.0)
 		"grove":
 			# A soft green-gold glow over the clearing
 			for i in 7:

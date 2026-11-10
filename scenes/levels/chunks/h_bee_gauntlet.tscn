@@ -1,0 +1,96 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/levels/chunks/chunk.gd" id="0_chunk"]
+[ext_resource type="PackedScene" path="res://scenes/world/ground_segment.tscn" id="1_ground"]
+[ext_resource type="PackedScene" path="res://scenes/world/branch_platform.tscn" id="2_branch"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/beehive.tscn" id="3_hive"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/hole.tscn" id="4_hole"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/tree_trunk.tscn" id="5_trunk"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/vine.tscn" id="6_vine"]
+[ext_resource type="PackedScene" path="res://scenes/world/sign.tscn" id="7_sign"]
+
+[node name="HBeeGauntlet" type="Node2D"]
+script = ExtResource("0_chunk")
+width = 1750.0
+difficulty = "hard"
+theme = "meadow"
+notes = "Two hives in a row, a trunk, then a hole while you may still be stung."
+
+[node name="Ground1" parent="." instance=ExtResource("1_ground")]
+position = Vector2(0.0, 0.0)
+width = 1350.0
+decor_seed = 380
+shade_left_edge = false
+shade_right_edge = true
+
+[node name="Ground2" parent="." instance=ExtResource("1_ground")]
+position = Vector2(1450.0, 0.0)
+width = 300.0
+decor_seed = 381
+shade_left_edge = true
+shade_right_edge = false
+
+[node name="Hive1" parent="." instance=ExtResource("3_hive")]
+position = Vector2(350.0, 0.0)
+style = "bush"
+chase_height_above = 150.0
+
+[node name="Hive2" parent="." instance=ExtResource("3_hive")]
+position = Vector2(900.0, 0.0)
+style = "branch"
+
+[node name="Trunk1" parent="." instance=ExtResource("5_trunk")]
+position = Vector2(1150.0, 0.0)
+
+[node name="Hole1" parent="." instance=ExtResource("4_hole")]
+position = Vector2(1400.0, 0.0)
+hole_width = 100.0
+
+[node name="Branch1" parent="." instance=ExtResource("2_branch")]
+position = Vector2(750.0, -270.0)
+width = 500.0
+
+[node name="Vine1" parent="." instance=ExtResource("6_vine")]
+position = Vector2(560.0, -276.0)
+length = 246.0
+
+[node name="SignClimb1" parent="." instance=ExtResource("7_sign")]
+position = Vector2(505.0, 0.0)
+icon = "climb"
+
+[node name="Vine2" parent="." instance=ExtResource("6_vine")]
+position = Vector2(950.0, -276.0)
+length = 246.0
+
+[node name="Spot1" type="Marker2D" parent="."]
+position = Vector2(110.0, 0)
+
+[node name="Spot2" type="Marker2D" parent="."]
+position = Vector2(250.0, 0)
+
+[node name="Spot3" type="Marker2D" parent="."]
+position = Vector2(390.0, 0)
+
+[node name="Spot4" type="Marker2D" parent="."]
+position = Vector2(530.0, 0)
+
+[node name="Spot5" type="Marker2D" parent="."]
+position = Vector2(670.0, 0)
+
+[node name="Spot6" type="Marker2D" parent="."]
+position = Vector2(810.0, 0)
+
+[node name="Spot7" type="Marker2D" parent="."]
+position = Vector2(990.0, 0)
+
+[node name="Spot8" type="Marker2D" parent="."]
+position = Vector2(1270.0, 0)
+
+[node name="Spot9" type="Marker2D" parent="."]
+position = Vector2(1530.0, 0)
+
+[node name="CanopySpot1" type="Marker2D" parent="."]
+position = Vector2(610.0, -270)
+
+[node name="CanopySpot2" type="Marker2D" parent="."]
+position = Vector2(810.0, -270)

@@ -72,6 +72,12 @@ func _ready() -> void:
 	add_child(_audio)
 
 
+func _exit_tree() -> void:
+	if _audio != null:
+		_audio.stop()
+		_audio.stream = null
+
+
 func _surface_points() -> PackedVector2Array:
 	return PackedVector2Array([Vector2(0, 0), Vector2(RAMP, dip_depth), Vector2(length - RAMP, dip_depth), Vector2(length, 0)])
 

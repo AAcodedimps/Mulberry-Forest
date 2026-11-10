@@ -7,7 +7,7 @@ extends Node
 signal deadly_mistake
 ## Sent when the wanderer makes a small mistake (e.g. trips over a trunk).
 signal clumsy_mistake
-## Sent when a mischief ghost steals the basket (the mulberries fly back onto the tree).
+## Sent when a mischief ghost steals a mulberry from the basket (it flies back to its tree).
 signal basket_stolen
 ## Sent when a ghost is beaten with a stone (a killer ghost stunned or a mischief ghost banished).
 signal ghost_beaten(ghost)

@@ -1,0 +1,46 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/levels/chunks/chunk.gd" id="0_chunk"]
+[ext_resource type="PackedScene" path="res://scenes/world/ground_segment.tscn" id="1_ground"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/collapsing_path.tscn" id="2_collapse"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/tree_trunk.tscn" id="3_trunk"]
+
+[node name="ECreakyPlanks" type="Node2D"]
+script = ExtResource("0_chunk")
+width = 1050.0
+difficulty = "easy"
+theme = "ridge"
+notes = "A short crumbling path with a trunk soon after."
+
+[node name="Ground1" parent="." instance=ExtResource("1_ground")]
+position = Vector2(0.0, 0.0)
+width = 380.0
+decor_seed = 240
+shade_left_edge = false
+shade_right_edge = true
+
+[node name="Ground2" parent="." instance=ExtResource("1_ground")]
+position = Vector2(600.0, 0.0)
+width = 450.0
+decor_seed = 241
+shade_left_edge = true
+shade_right_edge = false
+
+[node name="CollapsingPath1" parent="." instance=ExtResource("2_collapse")]
+position = Vector2(380.0, 0.0)
+length = 220.0
+
+[node name="Trunk1" parent="." instance=ExtResource("3_trunk")]
+position = Vector2(820.0, 0.0)
+
+[node name="Spot1" type="Marker2D" parent="."]
+position = Vector2(110.0, 0)
+
+[node name="Spot2" type="Marker2D" parent="."]
+position = Vector2(250.0, 0)
+
+[node name="Spot3" type="Marker2D" parent="."]
+position = Vector2(690.0, 0)
+
+[node name="Spot4" type="Marker2D" parent="."]
+position = Vector2(930.0, 0)

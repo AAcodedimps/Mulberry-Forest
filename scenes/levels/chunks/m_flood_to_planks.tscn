@@ -1,0 +1,67 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/levels/chunks/chunk.gd" id="0_chunk"]
+[ext_resource type="PackedScene" path="res://scenes/world/ground_segment.tscn" id="1_ground"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/collapsing_path.tscn" id="2_collapse"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/flood.tscn" id="3_flood"]
+[ext_resource type="PackedScene" path="res://scenes/hurdles/tree_trunk.tscn" id="4_trunk"]
+
+[node name="MFloodToPlanks" type="Node2D"]
+script = ExtResource("0_chunk")
+width = 1650.0
+difficulty = "medium"
+theme = "stream"
+notes = "A flood straight into a crumbling path, with only a tiny ledge between them."
+
+[node name="Ground1" parent="." instance=ExtResource("1_ground")]
+position = Vector2(0.0, 0.0)
+width = 250.0
+decor_seed = 280
+shade_left_edge = false
+shade_right_edge = true
+
+[node name="Ground2" parent="." instance=ExtResource("1_ground")]
+position = Vector2(750.0, 0.0)
+width = 80.0
+decor_seed = 281
+shade_left_edge = true
+shade_right_edge = true
+
+[node name="Ground3" parent="." instance=ExtResource("1_ground")]
+position = Vector2(1090.0, 0.0)
+width = 560.0
+decor_seed = 282
+shade_left_edge = true
+shade_right_edge = false
+
+[node name="Flood1" parent="." instance=ExtResource("3_flood")]
+position = Vector2(250.0, 0.0)
+length = 500.0
+
+[node name="CollapsingPath1" parent="." instance=ExtResource("2_collapse")]
+position = Vector2(830.0, 0.0)
+length = 260.0
+
+[node name="Trunk1" parent="." instance=ExtResource("4_trunk")]
+position = Vector2(1350.0, 0.0)
+
+[node name="Spot1" type="Marker2D" parent="."]
+position = Vector2(110.0, 0)
+
+[node name="Spot2" type="Marker2D" parent="."]
+position = Vector2(250.0, 0)
+
+[node name="Spot3" type="Marker2D" parent="."]
+position = Vector2(390.0, 0)
+
+[node name="Spot4" type="Marker2D" parent="."]
+position = Vector2(530.0, 0)
+
+[node name="Spot5" type="Marker2D" parent="."]
+position = Vector2(670.0, 0)
+
+[node name="Spot6" type="Marker2D" parent="."]
+position = Vector2(1170.0, 0)
+
+[node name="Spot7" type="Marker2D" parent="."]
+position = Vector2(1470.0, 0)

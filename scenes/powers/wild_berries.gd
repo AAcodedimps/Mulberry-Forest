@@ -21,5 +21,9 @@ func _try_collect(body) -> bool:
 	return true
 
 
+func _pickup_sound() -> String:
+	return "pickup_cure"
+
+
 func _draw_item() -> void:
 	PowerArt.draw(self, "wild_berries", Vector2.ZERO, 1.1, _t)

@@ -29,5 +29,9 @@ func _try_collect(body) -> bool:
 	return true
 
 
+func _pickup_sound() -> String:
+	return "pickup_power"
+
+
 func _draw_item() -> void:
 	PowerArt.draw(self, power_id, Vector2.ZERO, 1.1, _t)

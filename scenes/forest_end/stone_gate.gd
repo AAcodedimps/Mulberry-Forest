@@ -55,6 +55,7 @@ func _physics_process(delta: float) -> void:
 			_open()
 		elif not _touching:
 			_deny = 0.6
+			Sfx.play("gate_deny")
 			get_tree().call_group("message_hud", "show_message",
 				"The gate is sealed. It wants %d mulberries (you have %d)." % [need, have])
 	_touching = touching
@@ -62,6 +63,7 @@ func _physics_process(delta: float) -> void:
 
 func _open() -> void:
 	_opened = true
+	Sfx.play("gate_open")
 	$Wall/CollisionShape2D.set_deferred("disabled", true)   # the way through is open
 	var tween := create_tween()
 	tween.tween_property(self, "_runes", 1.0, open_time)

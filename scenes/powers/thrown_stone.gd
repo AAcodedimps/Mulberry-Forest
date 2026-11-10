@@ -43,6 +43,7 @@ func _physics_process(delta: float) -> void:
 	if not hit.is_empty():
 		global_position = hit.position
 		_dust = 0.0
+		Sfx.play("land", -14.0, 1.8)   # a little clack on the ground
 		queue_redraw()
 		return
 	global_position = to

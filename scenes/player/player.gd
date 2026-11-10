@@ -53,6 +53,7 @@ var _blink_timer: float = 0.0
 var _regrab_timer: float = 0.0
 var _start_position: Vector2
 var mulberries: int = 0          ## Mulberries in the basket.
+var _basket_trees: Array = []    # the tree each basket berry came from (newest last)
 var _auto_walk_speed: float = 0.0  # used while walking out through the gate
 var _slow_timer: float = 0.0     # mischief "Slow" trick
 var _slow_mult: float = 1.0
@@ -67,6 +68,11 @@ var _sting_label: Label         # the little sting number next to the wanderer
 var _shove_timer: float = 0.0    # mischief "Shove" trick
 var _shove_decel: float = 0.0
 var _popup_tween: Tween
+var _shake_time: float = 0.0      # screen shake: time left...
+var _shake_length: float = 0.0    # ...how long it lasts...
+var _shake_strength: float = 0.0  # ...and how strong it starts (pixels)
+
+const DustPuff = preload("res://scenes/player/dust_puff.gd")
 
 @onready var look = $Look  # the drawing node (wanderer_look.gd)
 @onready var camera: Camera2D = $Camera2D
@@ -104,6 +110,7 @@ func _jump_gravity() -> float:
 
 func _physics_process(delta: float) -> void:
 	_tick_timers(delta)
+	var was_on_floor: bool = is_on_floor()
 	match state:
 		State.NORMAL:
 			_process_normal(delta)
@@ -115,7 +122,11 @@ func _physics_process(delta: float) -> void:
 			_process_shoved(delta)
 		State.CUTSCENE:
 			velocity = Vector2(_auto_walk_speed, 0.0)   # no gravity: walks straight out of the level
+	var fall_speed: float = velocity.y
 	move_and_slide()
+	if is_on_floor() and not was_on_floor and fall_speed > 260.0 and state != State.CUTSCENE:
+		_landed(fall_speed)
+	_update_shake(delta)
 	if is_on_floor():
 		_coyote = coyote_time
 		last_floor_x = global_position.x
@@ -196,6 +207,7 @@ func _process_normal(delta: float) -> void:
 		velocity.y = -_jump_velocity()
 		_jump_buffer = 0.0
 		_coyote = 0.0
+		_jumped()
 		if not Input.is_action_pressed("jump"):
 			velocity.y *= jump_cut  # button was already let go: small hop
 	# Let go early = shorter jump.
@@ -238,6 +250,7 @@ func _process_climbing(delta: float) -> void:
 		velocity.y = -_jump_velocity() * 0.75
 		velocity.x = dir * run_speed
 		_regrab_timer = 0.25
+		_jumped()
 		return
 	if is_on_floor() and v > 0.0:
 		_stop_climbing()
@@ -367,21 +380,39 @@ func has_mulberries() -> bool:
 	return mulberries > 0
 
 
-## Basket trick: empties the basket. Returns how many mulberries were in it.
+## Empties the basket. Returns how many mulberries were in it.
 func empty_basket() -> int:
 	var lost: int = mulberries
 	mulberries = 0
+	_basket_trees.clear()
 	_notify_basket()
 	return lost
+
+
+## Mischief "steal" trick: takes the newest berry out of the basket and sends it back to the
+## tree it came from. Returns false if the basket was empty.
+func steal_mulberry() -> bool:
+	if mulberries <= 0:
+		return false
+	mulberries -= 1
+	var tree = _basket_trees.pop_back() if not _basket_trees.is_empty() else null
+	if tree != null and is_instance_valid(tree) and tree.has_method("return_berry"):
+		tree.return_berry()
+	_notify_basket()
+	return true
 
 
 func basket_full() -> bool:
 	return mulberries >= basket_size
 
 
-## The mulberry tree drops a berry into the basket.
-func add_mulberry() -> void:
-	mulberries = mini(mulberries + 1, basket_size)
+## A mulberry tree drops a berry into the basket (`from_tree` is remembered, so a stolen
+## berry can fly back to it).
+func add_mulberry(from_tree = null) -> void:
+	if mulberries >= basket_size:
+		return
+	mulberries += 1
+	_basket_trees.append(from_tree)
 	_notify_basket()
 
 
@@ -473,6 +504,37 @@ func _update_collision_mask() -> void:
 	if _blink_timer > 0.0:
 		m |= LAYER_HOLE_LID      # while blinking, holes have an invisible lid
 	collision_mask = m
+
+
+# ---------------------------------------------------------------- game feel
+## Jumping: a little "hup" and the wanderer stretches upwards for a moment.
+func _jumped() -> void:
+	Sfx.play("jump", -2.0)
+	look.stretch()
+
+
+## Landing after a fall: a soft thud, a puff of dust and a quick squash (bigger for bigger falls).
+func _landed(fall_speed: float) -> void:
+	var k: float = clampf((fall_speed - 260.0) / 600.0, 0.0, 1.0)
+	Sfx.play("land", lerpf(-9.0, 0.0, k))
+	look.land(0.4 + 0.6 * k)
+	DustPuff.spawn(get_parent(), global_position, 0.5 + 0.7 * k)
+
+
+## Shakes the screen for `time` seconds, starting `strength` pixels strong and fading out.
+func shake_camera(strength: float, time: float) -> void:
+	if strength >= _shake_strength * (_shake_time / maxf(_shake_length, 0.001)):
+		_shake_strength = strength
+		_shake_length = time
+		_shake_time = time
+
+
+func _update_shake(delta: float) -> void:
+	if _shake_time <= 0.0:
+		return
+	_shake_time = maxf(0.0, _shake_time - delta)
+	var s: float = _shake_strength * (_shake_time / _shake_length)
+	camera.offset = Vector2(randf_range(-s, s), randf_range(-s, s)) if _shake_time > 0.0 else Vector2.ZERO
 
 
 # ---------------------------------------------------------------- visuals
