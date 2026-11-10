@@ -8,7 +8,7 @@ const Circles = preload("res://scripts/circles.gd")
 ## green sparkles.
 
 # ======================= TUNING =======================
-@export var base_speed: float = 288.0                ## Speed of the first mischief ghost (pixels/second). 20% faster than the first killer ghost (240).
+@export var base_speed: float = 288.0                ## Speed of the first mischief ghost (pixels/second). (The first killer ghost moves at 264.)
 @export var speed_increase_per_ghost: float = 0.08   ## Each extra mischief ghost is this much faster than the one before (0.08 = 8%).
 @export var shove_distance: float = 160.0            ## Shove trick: how far you're pushed back, in pixels (about 3 metres for the wanderer).
 @export var shove_time: float = 0.5                  ## Shove trick: how long you stumble without control (seconds).

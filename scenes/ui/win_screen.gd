@@ -1,6 +1,6 @@
 extends CanvasLayer
 ## The win screen. When the wanderer has walked out through the gate, the forest's lights
-## slowly fade to dark, then "You escaped the forest" appears with the forest's number, the
+## slowly fade to dark, then "Moriko escaped the forest" appears with the forest's number, the
 ## run's time, the number of mistakes and ghosts beaten, plus a "Clean Escape" badge if no ghost
 ## was ever made. "Play again" (or R, handled by the pause menu script) builds a brand new random
 ## forest; T tries this same forest again.

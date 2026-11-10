@@ -16,6 +16,9 @@ const Circles = preload("res://scripts/circles.gd")
 @export var tree_scale: float = 1.0            ## How big the tree is drawn (1.0 = the old big tree). "Under the tree" shrinks with it.
 @export var throw_time: float = 1.0            ## Seconds each tree throw takes. You can't throw again until it's done.
 @export var under_tree_distance: float = 170.0 ## How close to the trunk (pixels, left or right) counts as "under the tree".
+@export var berry_size: float = 2.0            ## How big each mulberry is drawn (1.0 = the old small berries).
+@export var berry_glow: float = 1.0            ## How strong the soft purple glow around each berry is (0 = none).
+@export var berry_pulse_speed: float = 2.2     ## How fast the glow gently pulses (bigger = faster).
 # ======================================================
 
 const FloatingText = preload("res://scenes/ui/floating_text.gd")
@@ -108,7 +111,7 @@ func _physics_process(delta: float) -> void:
 		if berries_left() == 0 and _flying.is_empty():
 			_set_prompt("This tree is bare")
 		elif _player.basket_full():
-			_set_prompt("Your basket is full")
+			_set_prompt("Moriko's basket is full")
 		elif berries_left() == 0:
 			_set_prompt("No ripe mulberries left")
 		else:
@@ -146,7 +149,7 @@ func try_shake(player) -> void:
 		return
 	if not player.stone_thrower.use_stone():
 		get_tree().call_group("stone_counter", "shake")
-		get_tree().call_group("message_hud", "show_message", "You need a stone to shake the tree")
+		get_tree().call_group("message_hud", "show_message", "Moriko needs a stone to shake the tree")
 		return
 	_busy = throw_time
 	Sfx.play("throw", -6.0, 1.3)
@@ -259,14 +262,21 @@ func _draw() -> void:
 
 
 func _berry(p: Vector2) -> void:
-	# Small trees draw their berries a bit bigger and brighter, so you can spot them from afar.
+	# Small trees draw their berries a bit bigger, so you can spot them from afar.
 	var k: float = 1.5 / sqrt(clampf(tree_scale, 0.3, 1.0)) if tree_scale < 0.99 else 1.0
-	var glow: float = 0.6 + 0.4 * sin(_t * 2.5 + p.x)
-	Circles.circle(self, p, 15.0 * k, Color(0.8, 0.4, 1.0, 0.22 * glow))
-	Circles.circle(self, p, 9.0 * k, Color(0.85, 0.5, 1.0, 0.38 * glow))
+	k *= berry_size
+	# A gentle pulse: the glow breathes and the berry swells very slightly.
+	var pulse: float = 0.5 + 0.5 * sin(_t * berry_pulse_speed + p.x * 0.05)
+	var s: float = k * (1.0 + 0.06 * pulse)
+	var g: float = berry_glow * (0.7 + 0.3 * pulse)
+	# Soft purple halo: wide and faint on the outside, brighter near the berry.
+	Circles.circle(self, p, 18.0 * s, Color(0.65, 0.3, 1.0, 0.10 * g))
+	Circles.circle(self, p, 14.0 * s, Color(0.72, 0.38, 1.0, 0.16 * g))
+	Circles.circle(self, p, 10.5 * s, Color(0.8, 0.48, 1.0, 0.26 * g))
+	Circles.circle(self, p, 7.5 * s, Color(0.9, 0.62, 1.0, 0.38 * g))
 	for o: Vector2 in [Vector2(-2.5, -2), Vector2(2.5, -2), Vector2(0, 1.5), Vector2(0, -4.5)]:
-		Circles.circle(self, p + o * k, 3.4 * k, BERRY)
-	Circles.circle(self, p + Vector2(-1.8, -3.0) * k, 1.4 * k, BERRY_HI)
+		Circles.circle(self, p + o * s, 3.4 * s, BERRY)
+	Circles.circle(self, p + Vector2(-1.8, -3.0) * s, 1.4 * s, BERRY_HI.lerp(Color(1, 0.85, 1), 0.3 * pulse))
 
 
 func _ellipse(c: Vector2, r: Vector2, col: Color) -> void:

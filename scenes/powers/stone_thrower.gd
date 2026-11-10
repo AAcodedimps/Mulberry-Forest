@@ -67,7 +67,7 @@ func _physics_process(delta: float) -> void:
 		if stones <= 0:
 			get_tree().call_group("stone_counter", "shake")
 			if current_tree != null:
-				get_tree().call_group("message_hud", "show_message", "You need a stone to shake the tree")
+				get_tree().call_group("message_hud", "show_message", "Moriko needs a stone to shake the tree")
 		elif player.can_aim():
 			if current_tree != null:
 				_tap_timer = 0.0     # under the tree: wait to see if this is a tap or a hold

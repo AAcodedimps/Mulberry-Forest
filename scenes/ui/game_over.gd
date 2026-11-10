@@ -1,6 +1,6 @@
 extends CanvasLayer
 ## The "caught" screen. When a ghost reaches the wanderer it freezes the game, flashes the
-## screen red and shows "Your mistake caught you" with the forest's number ("Forest #4821").
+## screen red and shows "A ghost caught Moriko" with the forest's number ("Forest #4821").
 ## Retry (or R, via the pause menu script) builds a brand new random forest; T tries this same
 ## forest again. Restarting reloads the level, so all ghosts are gone.
 

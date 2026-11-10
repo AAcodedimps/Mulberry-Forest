@@ -1,14 +1,20 @@
 extends Node2D
 ## The title screen: "Mulberry Forest" in big soft glowing letters over the dusk forest, with
-## drifting fireflies and Start / Controls / Quit. Start shows two short lines of story, then the
+## drifting fireflies and Start / Controls / Quit. Start shows five short lines of Moriko's story, then the
 ## forest begins (any key skips the story).
 
 const UiStyle = preload("res://scenes/ui/ui_style.gd")
 const LEVEL := "res://scenes/levels/mulberry_forest.tscn"
-const STORY := ["You are lost in an enchanted forest.", "The old stone gate will only open for 5 mulberries."]
+const STORY := [
+	"Moriko is lost in an enchanted forest.",
+	"The only way out is the old stone gate at the end.",
+	"It opens only for someone carrying 5 mulberries.",
+	"Mulberries grow on trees along the path.\nShake them down with stones, so collect stones as you go.",
+	"Beware: every mistake becomes a ghost that follows your path.",
+]
 
 # ======================= TUNING =======================
-@export var story_line_time: float = 2.6   ## Seconds each story line stays before the next one (any key skips).
+@export var story_line_time: float = 2.8   ## Seconds each story line stays before the next one (any key skips).
 # ======================================================
 
 @onready var ui: Control = $UI/Root
@@ -64,7 +70,9 @@ func _on_start() -> void:
 	ForestRun.new_forest()
 	story.visible = true
 	story.modulate.a = 0.0
-	var lines: Array = [$UI/Story/Box/Line1, $UI/Story/Box/Line2]
+	var lines: Array = []
+	for i in STORY.size():
+		lines.append(get_node("UI/Story/Box/Line%d" % (i + 1)))
 	for i in lines.size():
 		lines[i].text = STORY[i]
 		lines[i].modulate.a = 0.0
